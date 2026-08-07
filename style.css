@@ -11,8 +11,8 @@
   --brand-deep:#4338ca;   /* Indigo 700 — hero fills, large blocks */
   --brand-accent:#6366f1; /* Indigo 500 — hover, gradients, icons */
   --highlight:#22d3ee;    /* Cyan — sparingly */
-  /* WhatsApp */
-  --wa:#25d366; --wa-dark:#128c4b;
+  /* WhatsApp (modern brand teal-green) */
+  --wa:#008069; --wa-hover:#006e59;
   /* Semantic */
   --success:#059669; --warning:#d97706; --info:#0ea5e9; --error:#ef4444;
   /* Slate neutrals */
@@ -56,8 +56,8 @@ img,svg { display:block; }
 .btn .icon { width:19px; height:19px; }
 .btn-primary { background:var(--brand); color:#fff; box-shadow:var(--shadow-sm); }
 .btn-primary:hover { background:var(--brand-deep); box-shadow:var(--shadow-md); }
-.btn-wa { background:var(--wa); color:#04331b; }
-.btn-wa:hover { background:#1ebe5a; box-shadow:0 10px 24px -10px rgba(37,211,102,.7); }
+.btn-wa { background:var(--wa); color:#fff; }
+.btn-wa:hover { background:var(--wa-hover); box-shadow:0 10px 24px -10px rgba(0,128,105,.55); }
 .btn-block { width:100%; }
 .btn-lg { padding:16px 28px; font-size:1.05rem; }
 
@@ -84,7 +84,7 @@ img,svg { display:block; }
 .nav-toggle span { width:22px; height:2px; background:var(--ink); border-radius:2px; transition:.2s; }
 .mobile-nav { display:none; flex-direction:column; gap:6px; padding:8px 22px 18px; border-bottom:1px solid var(--line); background:#fff; }
 .mobile-nav a { padding:10px 4px; color:var(--slate); font-weight:600; }
-.mobile-nav .btn-wa { margin-top:8px; color:#04331b; }
+.mobile-nav .btn-wa { margin-top:8px; color:#fff; }
 .mobile-nav.open { display:flex; }
 
 /* ---------- Hero ---------- */
@@ -220,15 +220,15 @@ img,svg { display:block; }
 .wa-float {
   position:fixed; right:20px; bottom:20px; z-index:60;
   width:58px; height:58px; border-radius:50%; background:var(--wa); color:#fff;
-  display:grid; place-items:center; box-shadow:0 12px 28px -8px rgba(37,211,102,.75);
+  display:grid; place-items:center; box-shadow:0 12px 28px -8px rgba(0,128,105,.75);
   animation:wa-pulse 2.6s infinite;
 }
 .wa-float .icon { width:30px; height:30px; }
-.wa-float:hover { background:#1ebe5a; }
+.wa-float:hover { background:var(--wa-hover); }
 @keyframes wa-pulse {
-  0% { box-shadow:0 12px 28px -8px rgba(37,211,102,.6), 0 0 0 0 rgba(37,211,102,.45); }
-  70% { box-shadow:0 12px 28px -8px rgba(37,211,102,.6), 0 0 0 16px rgba(37,211,102,0); }
-  100% { box-shadow:0 12px 28px -8px rgba(37,211,102,.6), 0 0 0 0 rgba(37,211,102,0); }
+  0% { box-shadow:0 12px 28px -8px rgba(0,128,105,.6), 0 0 0 0 rgba(0,128,105,.45); }
+  70% { box-shadow:0 12px 28px -8px rgba(0,128,105,.6), 0 0 0 16px rgba(0,128,105,0); }
+  100% { box-shadow:0 12px 28px -8px rgba(0,128,105,.6), 0 0 0 0 rgba(0,128,105,0); }
 }
 
 /* ---------- Focus ---------- */
