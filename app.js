@@ -29,6 +29,14 @@ chips.forEach((chip) => {
   });
 });
 
+// Header shadow on scroll
+const headerMain = document.getElementById('headerMain');
+if (headerMain) {
+  const onScroll = () => headerMain.classList.toggle('scrolled', window.scrollY > 4);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
 // Current year in footer
 const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();

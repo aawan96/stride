@@ -9,6 +9,9 @@ import os
 from urllib.parse import quote
 
 WA = "923001234567"  # TODO: replace with the real WhatsApp number
+GENERAL_WA = f"https://wa.me/{WA}?text=" + quote(
+    "Hi Stride, I'd like to know more about your electric wheelchairs."
+)
 
 BADGES = {
     "in": ("badge-in", "In stock"),
@@ -133,6 +136,12 @@ SYMBOLS = """  <svg width="0" height="0" style="position:absolute" aria-hidden="
     <symbol id="ic-check" viewBox="0 0 24 24">
       <path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
+    <symbol id="ic-truck" viewBox="0 0 24 24">
+      <path d="M2.5 6h11v9h-11z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M13.5 9h4l3.5 3.2V15h-7.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <circle cx="7" cy="17.5" r="1.9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <circle cx="17.5" cy="17.5" r="1.9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
   </svg>"""
 
 
@@ -173,7 +182,17 @@ def render(p):
 
 {SYMBOLS}
 
-  <header class="site-header" id="top">
+  <div class="topbar" id="top">
+    <div class="container topbar-inner">
+      <span class="topbar-msg"><svg class="icon" aria-hidden="true"><use href="#ic-truck"/></svg> Free delivery across Pakistan</span>
+      <span class="topbar-contact">
+        <a href="{GENERAL_WA}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg> +92 300 1234567</a>
+        <span class="topbar-sep" aria-hidden="true">·</span>
+        <span class="topbar-hours">Mon–Sat, 10am–8pm</span>
+      </span>
+    </div>
+  </div>
+  <header class="site-header" id="headerMain">
     <div class="container header-inner">
       <a href="../index.html" class="brand" aria-label="Stride home">
         <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#ic-wheelchair"/></svg></span>
