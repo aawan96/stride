@@ -19,6 +19,13 @@ BADGES = {
     "pre": ("badge-pre", "Pre-order"),
 }
 
+# Category per model (mirrors the homepage filter chips), used to pick related models.
+CATEGORY = {
+    "glide-s1": "folding", "compact-air": "folding",
+    "urban-u2": "comfort", "cruise-c3": "comfort", "recline-r5": "comfort",
+    "terra-x": "terrain",
+}
+
 PRODUCTS = [
     {
         "slug": "glide-s1", "name": "Stride Glide S1", "tag": "Folding · Entry",
@@ -153,6 +160,47 @@ def wa_link(p):
     return f"https://wa.me/{WA}?text={quote(msg)}"
 
 
+def related_products(p, limit=3):
+    """Same-category models first, then others; excludes the current product."""
+    cat = CATEGORY.get(p["slug"])
+    rest = [x for x in PRODUCTS if x["slug"] != p["slug"]]
+    same = [x for x in rest if CATEGORY.get(x["slug"]) == cat]
+    others = [x for x in rest if CATEGORY.get(x["slug"]) != cat]
+    return (same + others)[:limit]
+
+
+def card_html(rp):
+    """A compact model card (matches the homepage grid) for the related section."""
+    badge_class, badge_text = BADGES[rp["badge"]]
+    short = rp["lead"].split(". ")[0].rstrip(".") + "."
+    specs = "\n".join(
+        f'                <li><span>{k}</span><strong>{v}</strong></li>' for k, v in rp["quick"]
+    )
+    return f"""            <article class="card">
+              <div class="card-media {rp['media']}">
+                <span class="badge {badge_class}">{badge_text}</span>
+                <svg class="card-chair"><use href="#ic-wheelchair"/></svg>
+              </div>
+              <div class="card-body">
+                <div class="card-top">
+                  <h3>{rp['name']}</h3>
+                  <span class="tag">{rp['tag']}</span>
+                </div>
+                <p class="card-desc">{short}</p>
+                <ul class="specs">
+{specs}
+                </ul>
+                <div class="card-foot">
+                  <div class="price"><span>From</span>{rp['price']}</div>
+                  <a class="btn btn-outline btn-block" href="{rp['slug']}.html">View details</a>
+                  <a class="btn btn-wa btn-block" href="{wa_link(rp)}" target="_blank" rel="noopener">
+                    <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg><span>Enquire on WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+            </article>"""
+
+
 def render(p):
     badge_class, badge_text = BADGES[p["badge"]]
     quick = "\n".join(
@@ -166,6 +214,7 @@ def render(p):
         for h in p["highlights"]
     )
     cta_label = "Pre-order on WhatsApp" if p["badge"] == "pre" else "Enquire on WhatsApp"
+    related_html = "\n".join(card_html(rp) for rp in related_products(p))
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -257,6 +306,18 @@ def render(p):
             </ul>
             <div class="bestfor"><strong>Best for:</strong> {p['bestfor']}</div>
           </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-head">
+          <h2>Related models</h2>
+          <p>Other Stride chairs worth comparing before you decide.</p>
+        </div>
+        <div class="grid">
+{related_html}
         </div>
       </div>
     </section>
