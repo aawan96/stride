@@ -1,16 +1,23 @@
-/* ---------- Design tokens · Stride "Electric Indigo" ---------- */
+/* ---------- Design tokens · Stride "Teal" ---------- */
 :root {
-  /* Indigo ramp */
-  --indigo-50:#eef2ff; --indigo-100:#e0e7ff; --indigo-200:#c7d2fe; --indigo-300:#a5b4fc;
-  --indigo-400:#818cf8; --indigo-500:#6366f1; --indigo-600:#4f46e5; --indigo-700:#4338ca;
-  --indigo-800:#3730a3; --indigo-900:#312e81;
-  /* Highlight */
-  --cyan-400:#22d3ee; --cyan-500:#06b6d4;
+  /* Teal ramp — primary brand tones */
+  --teal-50:#e6f5f4;   /* Seafoam  */
+  --teal-100:#d6edeb;
+  --teal-200:#b6e0dc;
+  --teal-300:#7fc4bf;  /* Lagoon   */
+  --teal-400:#57b0aa;
+  --teal-500:#3a9e98;  /* Teal     */
+  --teal-600:#2d827d;
+  --teal-700:#1e6460;  /* Deep sea */
+  --teal-800:#154b48;
+  --teal-900:#0d3634;  /* Abyss    */
+  /* Accents — warmth & contrast */
+  --amber:#f5c97a; --sand:#e8d5b0; --linen:#f7ede0;
   /* Brand roles */
-  --brand:#4f46e5;        /* Indigo 600 — default */
-  --brand-deep:#4338ca;   /* Indigo 700 — hero fills, large blocks */
-  --brand-accent:#6366f1; /* Indigo 500 — hover, gradients, icons */
-  --highlight:#22d3ee;    /* Cyan — sparingly */
+  --brand:#3a9e98;        /* Teal — default */
+  --brand-deep:#1e6460;   /* Deep sea — hero fills, large blocks */
+  --brand-accent:#7fc4bf; /* Lagoon — hover, gradients, icons */
+  --highlight:#f5c97a;    /* Amber — warm accent, sparingly */
   /* WhatsApp (modern brand teal-green) */
   --wa:#008069; --wa-hover:#006e59;
   /* Semantic */
@@ -20,8 +27,8 @@
   --line:#e2e8f0; --bg:#ffffff; --bg-soft:#f8fafc; --bg-alt:#f1f5f9;
   --radius:18px; --radius-sm:12px;
   --shadow-sm:0 1px 2px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.05);
-  --shadow-md:0 10px 30px -12px rgba(49,46,129,.22);
-  --shadow-lg:0 24px 60px -24px rgba(49,46,129,.34);
+  --shadow-md:0 10px 30px -12px rgba(13,54,52,.20);
+  --shadow-lg:0 24px 60px -24px rgba(13,54,52,.30);
   --maxw:1140px;
 }
 
@@ -59,8 +66,8 @@ img,svg { display:block; }
 .btn-wa:hover { background:var(--wa-hover); box-shadow:0 10px 24px -10px rgba(0,128,105,.55); }
 .btn-block { width:100%; }
 .btn-lg { padding:16px 28px; font-size:1.05rem; }
-.btn-outline { background:#fff; color:var(--brand); border-color:var(--indigo-200); }
-.btn-outline:hover { border-color:var(--brand); background:var(--indigo-50); }
+.btn-outline { background:#fff; color:var(--brand); border-color:var(--teal-200); }
+.btn-outline:hover { border-color:var(--brand); background:var(--teal-50); }
 
 /* ---------- Header ---------- */
 
@@ -89,7 +96,7 @@ img,svg { display:block; }
 .brand-mark {
   display:grid; place-items:center; width:38px; height:38px; border-radius:11px;
   background:linear-gradient(135deg,var(--brand-accent),var(--brand-deep)); color:#fff;
-  box-shadow:0 6px 14px -6px rgba(67,56,202,.6);
+  box-shadow:0 6px 14px -6px rgba(30,100,96,.5);
 }
 .brand-mark .icon { width:23px; height:23px; }
 .brand-name { font-weight:800; font-size:1.38rem; letter-spacing:-0.03em; }
@@ -110,11 +117,11 @@ img,svg { display:block; }
 .mobile-nav.open { display:flex; }
 
 /* ---------- Hero ---------- */
-.hero { position:relative; overflow:hidden; background:linear-gradient(180deg,var(--indigo-50),#fff 70%); }
+.hero { position:relative; overflow:hidden; background:linear-gradient(180deg,var(--teal-50),#fff 70%); }
 .hero-inner { display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center; padding:76px 0 64px; }
 .eyebrow {
   display:inline-block; font-size:.8rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
-  color:var(--brand); background:var(--indigo-100); padding:6px 14px; border-radius:999px; margin-bottom:20px;
+  color:var(--brand); background:var(--teal-100); padding:6px 14px; border-radius:999px; margin-bottom:20px;
 }
 .hero h1 { font-size:clamp(2.4rem,5.4vw,3.8rem); font-weight:800; }
 .lead { margin-top:20px; font-size:1.14rem; color:var(--slate); max-width:34em; }
@@ -146,7 +153,7 @@ img,svg { display:block; }
 
 /* ---------- Sections ---------- */
 .section { padding:74px 0; }
-.section-alt { background:var(--bg-soft); }
+.section-alt { background:var(--linen); }
 .section-head { max-width:620px; margin-bottom:38px; }
 .section-head h2 { font-size:clamp(1.8rem,3.4vw,2.5rem); font-weight:800; }
 .section-head p { margin-top:14px; color:var(--slate); font-size:1.06rem; }
@@ -170,9 +177,9 @@ img,svg { display:block; }
 }
 .card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
 .card-media { position:relative; height:170px; display:grid; place-items:center; }
-.media-teal { background:linear-gradient(135deg,var(--indigo-400),var(--indigo-700)); }
-.media-indigo { background:linear-gradient(135deg,var(--indigo-500),var(--indigo-900)); }
-.media-amber { background:linear-gradient(135deg,var(--cyan-400),var(--indigo-600)); }
+.media-teal { background:linear-gradient(135deg,var(--teal-400),var(--teal-700)); }
+.media-indigo { background:linear-gradient(135deg,var(--teal-500),var(--teal-900)); }
+.media-amber { background:linear-gradient(135deg,var(--teal-300),var(--teal-700)); }
 .card-chair { width:96px; height:96px; color:rgba(255,255,255,.95); filter:drop-shadow(0 6px 12px rgba(0,0,0,.18)); }
 .badge {
   position:absolute; top:14px; left:14px; font-size:.74rem; font-weight:700;
@@ -208,7 +215,7 @@ img,svg { display:block; }
 /* ---------- Contact ---------- */
 .contact-card {
   display:grid; grid-template-columns:1.3fr 1fr; gap:36px; align-items:center;
-  background:linear-gradient(135deg,var(--brand-deep),var(--indigo-900));
+  background:linear-gradient(135deg,var(--brand-deep),var(--teal-900));
   color:#fff; border-radius:26px; padding:48px; box-shadow:var(--shadow-lg);
   position:relative; overflow:hidden;
 }
@@ -284,7 +291,7 @@ a:focus-visible, button:focus-visible {
 .highlight-list { list-style:none; margin:0; padding:0; display:grid; gap:12px; }
 .highlight-list li { display:flex; align-items:flex-start; gap:10px; color:var(--slate); }
 .highlight-list .icon { width:20px; height:20px; color:var(--brand); flex-shrink:0; margin-top:2px; }
-.bestfor { margin-top:22px; padding:16px 18px; border-radius:var(--radius-sm); background:var(--indigo-50); color:var(--indigo-900); border:1px solid var(--indigo-100); }
+.bestfor { margin-top:22px; padding:16px 18px; border-radius:var(--radius-sm); background:var(--teal-50); color:var(--teal-900); border:1px solid var(--teal-100); }
 .bestfor strong { color:var(--brand); }
 
 /* ---------- Responsive ---------- */
