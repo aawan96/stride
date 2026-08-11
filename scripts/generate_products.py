@@ -243,9 +243,8 @@ def render(p):
   </div>
   <header class="site-header" id="headerMain">
     <div class="container header-inner">
-      <a href="../index.html" class="brand" aria-label="Stride home">
-        <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#ic-wheelchair"/></svg></span>
-        <span class="brand-name">stride</span>
+      <a href="../index.html" class="brand" aria-label="Stride — home">
+        <img src="../images/logo.svg" alt="Stride" class="brand-logo">
       </a>
       <nav class="nav" aria-label="Primary">
         <a href="../index.html#models">Models</a>
@@ -347,8 +346,7 @@ def render(p):
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-brand">
-        <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#ic-wheelchair"/></svg></span>
-        <span class="brand-name">stride</span>
+        <img src="../images/logo.svg" alt="Stride" class="brand-logo footer-logo">
       </div>
       <p class="footer-tag">Electric wheelchairs for independent living, delivered across Pakistan.</p>
       <nav class="footer-nav" aria-label="Footer">
