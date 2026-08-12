@@ -31,7 +31,7 @@ PRODUCTS = [
         "slug": "glide-s1", "name": "Stride Glide S1", "tag": "Folding · Entry",
         "badge": "in", "price": "PKR 185,000", "media": "media-teal",
         "lead": "A lightweight folding power chair built for indoors and short trips. Simple, "
-                "reliable and genuinely easy to store — it folds in one motion and fits in a car boot, "
+                "reliable and genuinely easy to store it folds in one motion and fits in a car boot, "
                 "so getting out of the house never feels like a project.",
         "quick": [("Range", "15 km"), ("Top speed", "6 km/h"), ("Max load", "100 kg"), ("Foldable", "Yes")],
         "specs": [
@@ -64,7 +64,7 @@ PRODUCTS = [
     {
         "slug": "cruise-c3", "name": "Stride Cruise C3", "tag": "Comfort · Mid",
         "badge": "in", "price": "PKR 265,000", "media": "media-teal",
-        "lead": "Extra padding, adjustable armrests and a smoother ride for longer daily use — indoors and "
+        "lead": "Extra padding, adjustable armrests and a smoother ride for longer daily use indoors and "
                 "out. The Cruise C3 is our sweet spot of comfort, range and value.",
         "quick": [("Range", "25 km"), ("Top speed", "8 km/h"), ("Max load", "120 kg"), ("Foldable", "Yes")],
         "specs": [
@@ -80,7 +80,7 @@ PRODUCTS = [
     {
         "slug": "compact-air", "name": "Stride Compact Air", "tag": "Ultra-light · Travel",
         "badge": "in", "price": "PKR 320,000", "media": "media-amber",
-        "lead": "Just 18 kg and airline-friendly. The Compact Air folds in seconds and lifts easily — ideal "
+        "lead": "Just 18 kg and airline-friendly. The Compact Air folds in seconds and lifts easily ideal "
                 "for travel, hotels and getting in and out of taxis without a struggle.",
         "quick": [("Range", "20 km"), ("Top speed", "6 km/h"), ("Max load", "110 kg"), ("Weight", "18 kg")],
         "specs": [
@@ -89,7 +89,7 @@ PRODUCTS = [
             ("Charge time", "5–7 hrs"), ("Foldable", "Yes (auto-fold option)"),
             ("Tyres", "Solid"), ("Controls", "Joystick"), ("Warranty", "1 year"),
         ],
-        "highlights": ["Only 18 kg — easy to lift", "Airline-safe lithium battery",
+        "highlights": ["Only 18 kg easy to lift", "Airline-safe lithium battery",
                        "Folds in seconds", "Perfect for travel and taxis", "Optional auto-fold remote"],
         "bestfor": "Travel, flights and frequent transfers.",
     },
@@ -149,6 +149,9 @@ SYMBOLS = """  <svg width="0" height="0" style="position:absolute" aria-hidden="
       <circle cx="7" cy="17.5" r="1.9" fill="none" stroke="currentColor" stroke-width="1.6"/>
       <circle cx="17.5" cy="17.5" r="1.9" fill="none" stroke="currentColor" stroke-width="1.6"/>
     </symbol>
+    <symbol id="ic-phone" viewBox="0 0 24 24">
+      <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .7-.2 1z" fill="currentColor"/>
+    </symbol>
   </svg>"""
 
 
@@ -183,7 +186,7 @@ def card_html(rp):
               </div>
               <div class="card-body">
                 <div class="card-top">
-                  <h3>{rp['name']}</h3>
+                  <h3><a class="card-title-link" href="{rp['slug']}.html">{rp['name']}</a></h3>
                   <span class="tag">{rp['tag']}</span>
                 </div>
                 <p class="card-desc">{short}</p>
@@ -191,10 +194,12 @@ def card_html(rp):
 {specs}
                 </ul>
                 <div class="card-foot">
-                  <div class="price"><span>From</span>{rp['price']}</div>
-                  <a class="btn btn-outline btn-block" href="{rp['slug']}.html">View details</a>
+                  <div class="price">{rp['price']}</div>
+                  <a class="btn btn-primary btn-block" href="tel:+923001234567">
+                    <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg><span>Call now</span>
+                  </a>
                   <a class="btn btn-wa btn-block" href="{wa_link(rp)}" target="_blank" rel="noopener">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg><span>Enquire on WhatsApp</span>
+                    <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg><span>Chat on WhatsApp</span>
                   </a>
                 </div>
               </div>
@@ -213,14 +218,13 @@ def render(p):
         f'              <li><svg class="icon" aria-hidden="true"><use href="#ic-check"/></svg><span>{h}</span></li>'
         for h in p["highlights"]
     )
-    cta_label = "Pre-order on WhatsApp" if p["badge"] == "pre" else "Enquire on WhatsApp"
     related_html = "\n".join(card_html(rp) for rp in related_products(p))
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{p['name']} — Stride Electric Wheelchairs</title>
+  <title>{p['name']} Stride Electric Wheelchairs</title>
   <meta name="description" content="{p['lead'][:150]}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -237,13 +241,13 @@ def render(p):
       <span class="topbar-contact">
         <a href="{GENERAL_WA}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg> +92 300 1234567</a>
         <span class="topbar-sep" aria-hidden="true">·</span>
-        <span class="topbar-hours">Mon–Sat, 10am–8pm</span>
+        <span class="topbar-hours">Sat–Thu, 10am–7pm</span>
       </span>
     </div>
   </div>
   <header class="site-header" id="headerMain">
     <div class="container header-inner">
-      <a href="../index.html" class="brand" aria-label="Stride — home">
+      <a href="../index.html" class="brand" aria-label="Stride home">
         <img src="../images/logo.svg" alt="Stride" class="brand-logo">
       </a>
       <nav class="nav" aria-label="Primary">
@@ -251,9 +255,9 @@ def render(p):
         <a href="../index.html#why">Why Stride</a>
         <a href="../index.html#contact">Contact</a>
       </nav>
-      <a class="btn btn-wa header-cta" href="{wa_link(p)}" target="_blank" rel="noopener">
-        <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg>
-        <span>Chat on WhatsApp</span>
+      <a class="btn btn-primary header-cta" href="tel:+923001234567">
+        <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>
+        <span>Call now</span>
       </a>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -263,6 +267,7 @@ def render(p):
       <a href="../index.html#models">Models</a>
       <a href="../index.html#why">Why Stride</a>
       <a href="../index.html#contact">Contact</a>
+      <a class="btn btn-primary" href="tel:+923001234567">Call now for free consultation</a>
       <a class="btn btn-wa" href="{wa_link(p)}" target="_blank" rel="noopener">Chat on WhatsApp</a>
     </nav>
   </header>
@@ -281,9 +286,12 @@ def render(p):
             <span class="tag">{p['tag']}</span>
             <h1>{p['name']}</h1>
             <p class="pdp-lead">{p['lead']}</p>
-            <div class="pdp-price"><span>From</span>{p['price']}</div>
+            <div class="pdp-price">{p['price']}</div>
+            <a class="btn btn-primary btn-lg" href="tel:+923001234567">
+              <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg><span>Call now for free consultation</span>
+            </a>
             <a class="btn btn-wa btn-lg" href="{wa_link(p)}" target="_blank" rel="noopener">
-              <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg><span>{cta_label}</span>
+              <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg><span>Chat on WhatsApp</span>
             </a>
             <ul class="pdp-quick">
 {quick}
@@ -326,16 +334,20 @@ def render(p):
         <div class="contact-card">
           <div class="contact-copy">
             <h2>Questions about the {p['name']}?</h2>
-            <p>Message us on WhatsApp for live stock, delivery time to your city and the final quote. We'll send real photos and answer anything.</p>
+            <p>Call us for a free consultation on live stock, delivery time to your city and the final quote. Prefer to type? Message us on WhatsApp and we'll send real photos and answer anything.</p>
             <div class="contact-meta">
               <p><strong>WhatsApp / Phone:</strong> +92 300 1234567</p>
-              <p><strong>Hours:</strong> Mon–Sat, 10am–8pm · Serving all of Pakistan</p>
+              <p><strong>Hours:</strong> Sat–Thu, 10am–7pm · Serving all of Pakistan</p>
             </div>
           </div>
           <div class="contact-cta">
+            <a class="btn btn-primary btn-lg" href="tel:+923001234567">
+              <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>
+              <span>Call now for free consultation</span>
+            </a>
             <a class="btn btn-wa btn-lg" href="{wa_link(p)}" target="_blank" rel="noopener">
               <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg>
-              <span>{cta_label}</span>
+              <span>Chat on WhatsApp</span>
             </a>
           </div>
         </div>
@@ -361,6 +373,9 @@ def render(p):
     </div>
   </footer>
 
+  <a class="call-float" href="tel:+923001234567" aria-label="Call now for a free consultation">
+    <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>
+  </a>
   <a class="wa-float" href="{wa_link(p)}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
     <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg>
   </a>
