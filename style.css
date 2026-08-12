@@ -17,17 +17,16 @@
   /* Honey accent */
   --honey:#edb758; --honey-deep:#c68a2a;
   /* Brand roles */
-  --brand:#de7356;        /* Primary (solid — for text/borders/icons) */
-  --brand-deep:#de7356;   /* Same solid tone */
+  --brand:#de7356;        /* Primary */
+  --brand-deep:#de7356;   /* Same — never darker than the primary */
   --brand-accent:#de7356; /* Same */
-  --brand-gradient:linear-gradient(-64deg, #de7356 24%, #8330f6 100%); /* Primary fill gradient */
   --highlight:#2da767;    /* Emerald — secondary accent */
   /* WhatsApp (modern brand teal-green) */
   --wa:#008069; --wa-hover:#006e59;
   /* Semantic */
   --success:#059669; --warning:#d97706; --info:#0ea5e9; --error:#ef4444;
   /* Warm neutrals — Porcelain, Linen, Stone, Slate, Bark, Ink */
-  --ink:#2b2e26; --slate:#4f5248; --slate-light:#7c7f74;
+  --ink:#181613; --slate:#4f5248; --slate-light:#7c7f74;
   --line:#d8dad1; --bg:#ffffff; --bg-soft:#f7f8f5; --bg-alt:#edefe9;
   --linen:#edefe9;
   --radius:18px; --radius-sm:12px;
@@ -63,10 +62,16 @@ img,svg { display:block; }
   transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
   white-space:nowrap;
 }
+.btn:hover { transform:translateY(-2px); }
 .btn:active { transform:translateY(1px); }
-.btn .icon { width:19px; height:19px; }
-.btn-primary { background:var(--brand-gradient); color:#fff; box-shadow:var(--shadow-sm); }
-.btn-primary:hover { filter:brightness(1.06); box-shadow:var(--shadow-md); }
+.btn .icon { width:19px; height:19px; transition:transform .15s ease; }
+.btn:hover .icon { transform:scale(1.08); }
+@media (prefers-reduced-motion:reduce) {
+  .btn, .btn .icon { transition:none; }
+  .btn:hover { transform:none; }
+}
+.btn-primary { background:var(--clay); color:#fff; box-shadow:var(--shadow-sm); }
+.btn-primary:hover { background:var(--clay-deep); color:#fff; box-shadow:var(--shadow-md); }
 .btn-wa { background:var(--wa); color:#fff; }
 .btn-wa:hover { background:var(--wa-hover); box-shadow:0 10px 24px -10px rgba(0,128,105,.55); }
 .btn-block { width:100%; }
@@ -90,32 +95,35 @@ img,svg { display:block; }
 /* Sticky main bar */
 .site-header {
   position:sticky; top:0; z-index:50;
+  margin-bottom:-66px;
   background:transparent;
   border-bottom:1px solid transparent;
   transition:box-shadow .2s ease, background .2s ease, border-color .2s ease, backdrop-filter .2s ease;
 }
 .site-header.scrolled {
-  background:rgba(255,255,255,.94);
-  backdrop-filter:saturate(180%) blur(12px);
-  border-bottom-color:var(--line);
-  box-shadow:0 8px 24px -14px rgba(15,23,42,.35);
+  background:rgba(255,255,255,.6);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-bottom-color:rgba(255,255,255,.5);
+  box-shadow:0 8px 24px -16px rgba(15,23,42,.3);
 }
 .header-inner { display:flex; align-items:center; gap:24px; height:66px; }
 .brand { display:flex; align-items:center; gap:11px; margin-right:auto; }
 .brand-mark {
   display:grid; place-items:center; width:38px; height:38px; border-radius:11px;
-  background:var(--brand-gradient); color:#fff;
-  box-shadow:0 6px 14px -6px rgba(131,48,246,.4);
+  background:linear-gradient(135deg,var(--brand),var(--brand-deep)); color:#fff;
+  box-shadow:0 6px 14px -6px rgba(222,115,86,.5);
 }
 .brand-mark .icon { width:23px; height:23px; }
 .brand-name { font-weight:800; font-size:1.38rem; letter-spacing:-0.03em; }
-.brand-logo { height:30px; width:auto; display:block; }
-.footer-logo { height:26px; }
+.brand-logo { height:32px; width:auto; display:block; transition:height .2s ease; }
+.site-header.scrolled .brand-logo { height:24px; }
+.footer-logo { height:22px; }
 .nav { display:flex; gap:30px; }
 .nav a { position:relative; color:var(--slate); font-weight:500; font-size:.97rem; padding:4px 0; }
 .nav a::after {
   content:""; position:absolute; left:0; right:0; bottom:-3px; height:2px; border-radius:2px;
-  background:var(--brand-gradient); transform:scaleX(0); transform-origin:left; transition:transform .2s ease;
+  background:var(--brand); transform:scaleX(0); transform-origin:left; transition:transform .2s ease;
 }
 .nav a:hover { color:var(--ink); }
 .nav a:hover::after { transform:scaleX(1); }
@@ -144,9 +152,9 @@ img,svg { display:block; }
 .hero-visual { position:relative; display:grid; place-items:center; min-height:320px; }
 .hero-blob {
   position:absolute; inset:0; margin:auto; width:88%; height:88%;
-  background:var(--brand-gradient);
+  background:radial-gradient(circle at 30% 30%,var(--brand-accent),var(--brand-deep));
   border-radius:44% 56% 62% 38% / 46% 42% 58% 54%;
-  filter:blur(2px); opacity:.2;
+  filter:blur(2px); opacity:.18;
 }
 .hero-photo {
   position:relative; width:100%; max-width:400px; aspect-ratio:3/4;
@@ -159,7 +167,7 @@ img,svg { display:block; }
 .stats { border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:#fff; }
 .stats-inner { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; padding:26px 0; }
 .stat { text-align:center; padding:6px 10px; }
-.stat strong { display:block; font-size:1.5rem; font-weight:800; letter-spacing:-0.02em; background:var(--brand-gradient); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.stat strong { display:block; font-size:1.5rem; font-weight:800; color:var(--brand-deep); letter-spacing:-0.02em; }
 .stat span { color:var(--slate-light); font-size:.9rem; }
 
 /* ---------- Sections ---------- */
@@ -177,7 +185,7 @@ img,svg { display:block; }
   transition:.15s;
 }
 .chip:hover { border-color:var(--brand-accent); color:var(--brand-deep); }
-.chip.is-active { background:var(--brand-gradient); border-color:transparent; color:#fff; }
+.chip.is-active { background:var(--brand-deep); border-color:var(--brand-deep); color:#fff; }
 
 /* ---------- Product grid ---------- */
 .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
@@ -188,9 +196,9 @@ img,svg { display:block; }
 }
 .card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
 .card-media { position:relative; height:170px; display:grid; place-items:center; }
-.media-teal { background:var(--brand-gradient); }
-.media-indigo { background:var(--brand-gradient); }
-.media-amber { background:var(--brand-gradient); }
+.media-teal { background:linear-gradient(135deg,var(--clay-400),var(--clay-700)); }
+.media-indigo { background:linear-gradient(135deg,var(--clay-500),var(--clay-900)); }
+.media-amber { background:var(--clay-400); }
 .card-chair { width:96px; height:96px; color:rgba(255,255,255,.95); filter:drop-shadow(0 6px 12px rgba(0,0,0,.18)); }
 .badge {
   position:absolute; top:14px; left:14px; font-size:.74rem; font-weight:700;
@@ -220,7 +228,7 @@ img,svg { display:block; }
 .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
 .feature { background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:26px; box-shadow:var(--shadow-sm); }
 .feature h3 { font-size:1.12rem; font-weight:800; }
-.feature h3::before { content:""; display:block; width:38px; height:4px; border-radius:4px; background:var(--brand-gradient); margin-bottom:14px; }
+.feature h3::before { content:""; display:block; width:38px; height:4px; border-radius:4px; background:linear-gradient(90deg,var(--brand),var(--highlight)); margin-bottom:14px; }
 .feature p { margin-top:8px; color:var(--slate); font-size:.96rem; }
 
 /* ---------- Contact ---------- */
@@ -254,7 +262,7 @@ img,svg { display:block; }
 .footer-nav a:hover { color:#fff; }
 .footer-bottom {
   display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px;
-  margin-top:26px; padding-top:20px; border-top:1px solid #1e293b; color:#64748b; font-size:.85rem;
+  margin-top:26px; padding-top:20px; border-top:1px solid #2e2b26; color:#8a8578; font-size:.85rem;
 }
 
 /* ---------- Floating WhatsApp ---------- */
@@ -347,7 +355,7 @@ a:focus-visible, button:focus-visible {
   /* Floating WhatsApp: smaller, tucked in the corner */
   .wa-float { width:52px; height:52px; right:16px; bottom:16px; }
   .wa-float .icon { width:26px; height:26px; }
-  .brand-logo { height:26px; }
+  .brand-logo { height:20px; }
 }
 @media (prefers-reduced-motion:reduce) {
   * { scroll-behavior:auto; }
