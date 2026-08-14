@@ -323,6 +323,132 @@ a:focus-visible, button:focus-visible {
   outline:3px solid var(--highlight); outline-offset:2px; border-radius:6px;
 }
 
+/* ---------- Compare ---------- */
+.sr-only {
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* Toggle on each card */
+.compare-toggle {
+  position:absolute; top:12px; right:12px; z-index:3;
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:.74rem; font-weight:700; padding:6px 11px;
+  border-radius:999px; border:1px solid var(--line);
+  background:rgba(255,255,255,.92); color:var(--slate);
+  cursor:pointer; backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  transition:background .15s ease, border-color .15s ease, color .15s ease;
+}
+.compare-toggle .icon { width:14px; height:14px; opacity:.45; transition:opacity .15s ease; }
+.compare-toggle:hover { border-color:var(--brand-accent); color:var(--brand-deep); }
+.compare-toggle.is-selected { background:var(--brand-deep); border-color:var(--brand-deep); color:#fff; }
+.compare-toggle.is-selected .icon { opacity:1; }
+.compare-toggle:disabled { opacity:.4; cursor:not-allowed; }
+.compare-toggle:disabled:hover { border-color:var(--line); color:var(--slate); }
+
+/* Sticky tray */
+.compare-tray {
+  position:fixed; left:0; right:0; bottom:0; z-index:70;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-top:1px solid var(--line);
+  box-shadow:0 -10px 34px -20px rgba(43,46,38,.5);
+  transform:translateY(105%); transition:transform .25s ease;
+  padding:12px 0;
+}
+.compare-tray.open { transform:translateY(0); }
+.compare-tray-inner { display:flex; align-items:center; gap:16px; }
+.compare-tray-items { display:flex; flex-wrap:wrap; align-items:center; gap:8px; flex:1; min-width:0; }
+.compare-chip {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--bg-alt); border-radius:999px; padding:6px 8px 6px 13px;
+  font-size:.86rem; font-weight:600; color:var(--ink);
+}
+.compare-chip button {
+  border:0; background:var(--line); color:var(--ink);
+  width:20px; height:20px; border-radius:50%; cursor:pointer;
+  font-size:1rem; line-height:1; display:grid; place-items:center; padding:0;
+}
+.compare-chip button:hover { background:var(--brand-deep); color:#fff; }
+.compare-hint { color:var(--slate-light); font-size:.9rem; font-weight:500; }
+.compare-tray-actions { display:flex; gap:10px; flex-shrink:0; }
+.compare-count {
+  display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 5px;
+  border-radius:999px; background:rgba(255,255,255,.28); font-size:.8rem; margin-left:2px;
+}
+/* Lift the floating call button above the tray when it's open */
+body.compare-active .call-float { bottom:88px; }
+
+/* Modal */
+body.modal-open { overflow:hidden; }
+.compare-modal { position:fixed; inset:0; z-index:90; display:none; }
+.compare-modal.open { display:block; }
+.compare-modal-backdrop {
+  position:absolute; inset:0; background:rgba(24,22,19,.55);
+  backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
+}
+.compare-modal-panel {
+  position:relative; width:calc(100% - 32px); max-width:940px;
+  margin:5vh auto; max-height:90vh;
+  background:#fff; border-radius:22px; box-shadow:var(--shadow-lg);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.compare-modal-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 24px; border-bottom:1px solid var(--line);
+}
+.compare-modal-head h2 { font-size:1.4rem; font-weight:800; }
+.compare-modal-close {
+  border:0; background:var(--bg-alt); width:38px; height:38px; border-radius:50%;
+  font-size:1.5rem; line-height:1; cursor:pointer; color:var(--slate); flex-shrink:0;
+}
+.compare-modal-close:hover { background:var(--brand-deep); color:#fff; }
+.compare-modal-body { overflow:auto; }
+.compare-table-scroll { overflow-x:auto; }
+.compare-table { width:100%; border-collapse:collapse; min-width:520px; }
+.compare-table th, .compare-table td {
+  padding:14px 16px; border-bottom:1px solid var(--line); vertical-align:middle;
+}
+.compare-table thead th {
+  position:sticky; top:0; background:#fff; z-index:2;
+  border-bottom:2px solid var(--line); text-align:center;
+}
+.compare-corner { background:var(--bg-soft); }
+.compare-model-head { min-width:150px; }
+.compare-model-img { width:88px; height:64px; object-fit:contain; margin:0 auto 8px; filter:drop-shadow(0 6px 10px rgba(0,0,0,.16)); }
+.compare-model-name { display:block; font-weight:800; font-size:1rem; }
+.compare-model-tag { display:block; color:var(--slate-light); font-size:.76rem; font-weight:600; margin-top:2px; }
+.compare-row-label {
+  text-align:left; color:var(--slate-light); font-weight:600; font-size:.9rem;
+  white-space:nowrap; background:var(--bg-soft);
+  position:sticky; left:0; z-index:1;
+}
+.compare-cell { text-align:center; font-weight:700; color:var(--ink); }
+.compare-cell.is-best { color:var(--em-500); }
+.compare-cell.is-best::after { content:" ★"; font-size:.72em; vertical-align:top; }
+.compare-price { font-size:1.05rem; }
+
+/* Always-on comparison section */
+.compare-all {
+  border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow-sm); background:#fff;
+}
+.compare-all .compare-table { min-width:760px; }
+.compare-all .compare-corner,
+.compare-all .compare-row-label { background:var(--bg-soft); }
+.compare-all .compare-table tbody tr:last-child td { border-bottom:0; }
+.compare-all-note { margin-top:18px; color:var(--slate); font-size:.98rem; }
+.compare-all-note a { color:var(--brand-deep); font-weight:600; }
+
+@media (max-width:600px) {
+  .compare-tray-inner { flex-wrap:wrap; gap:10px; }
+  .compare-tray-actions { width:100%; }
+  .compare-tray-actions .btn { flex:1; }
+  .compare-modal-panel { margin:0; width:100%; max-height:100vh; height:100vh; border-radius:0; }
+}
+
 /* ---------- Product detail page ---------- */
 .back-link { display:inline-flex; align-items:center; gap:6px; color:var(--slate); font-weight:600; font-size:.95rem; margin-bottom:24px; }
 .back-link:hover { color:var(--brand-deep); }
