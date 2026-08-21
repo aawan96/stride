@@ -1,132 +1,276 @@
 #!/usr/bin/env python3
-"""Generate a dedicated detail page for each Stride wheelchair model.
+"""Generate site content from the product spreadsheet.
 
-Product data below is the single source of truth for the detail pages.
+`product-data.xlsx` (repo root) is the single source of truth. Its `Products`
+and `Site Settings` sheets drive:
+  * products/<slug>.html          — one detail page per model
+  * index.html   #modelGrid       — the homepage model cards (CARDS markers)
+  * app.js       COMPARE_MODELS    — data for the compare tray/modal/table
+
 Run from the repo root:  python3 scripts/generate_products.py
-Outputs: products/<slug>.html
+Requires: openpyxl  (pip install openpyxl)
 """
 import os
+import re
 from urllib.parse import quote
 
-WA = "923001234567"  # TODO: replace with the real WhatsApp number
-GENERAL_WA = f"https://wa.me/{WA}?text=" + quote(
-    "Hi Stride, I'd like to know more about your electric wheelchairs."
-)
+import openpyxl
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PATH = os.path.join(ROOT, "product-data.xlsx")
 
 BADGES = {
     "in": ("badge-in", "In stock"),
     "limited": ("badge-limited", "Limited stock"),
     "pre": ("badge-pre", "Pre-order"),
 }
-
-# Category per model (mirrors the homepage filter chips), used to pick related models.
-CATEGORY = {
-    "glide-s1": "folding", "compact-air": "folding",
-    "urban-u2": "comfort", "cruise-c3": "comfort", "recline-r5": "comfort",
-    "terra-x": "terrain",
+STATUS_TO_BADGE = {
+    "in stock": "in",
+    "limited stock": "limited",
+    "pre-order": "pre",
+    "preorder": "pre",
 }
+# Card media background tint. Keeps the current homepage look; unknown slugs rotate.
+MEDIA_BY_SLUG = {
+    "glide-s1": "media-teal", "cruise-c3": "media-teal",
+    "urban-u2": "media-indigo", "terra-x": "media-indigo",
+    "compact-air": "media-amber", "recline-r5": "media-amber",
+}
+MEDIA_ROTATION = ["media-teal", "media-indigo", "media-amber"]
 
-PRODUCTS = [
-    {
-        "slug": "glide-s1", "name": "Stride Glide S1", "tag": "Folding · Entry",
-        "badge": "in", "price": "PKR 185,000", "media": "media-teal",
-        "lead": "A lightweight folding power chair built for indoors and short trips. Simple, "
-                "reliable and genuinely easy to store it folds in one motion and fits in a car boot, "
-                "so getting out of the house never feels like a project.",
-        "quick": [("Range", "15 km"), ("Top speed", "6 km/h"), ("Max load", "100 kg"), ("Foldable", "Yes")],
-        "specs": [
-            ("Range per charge", "15 km"), ("Top speed", "6 km/h"), ("Max load", "100 kg"),
-            ("Kerb weight", "24 kg"), ("Battery", "Li-ion 24V 12Ah"), ("Motor", "Brushless 250W"),
-            ("Charge time", "6–8 hrs"), ("Foldable", "Yes (one-fold)"),
-            ("Tyres", "Solid, puncture-free"), ("Controls", "Joystick"), ("Warranty", "1 year"),
-        ],
-        "highlights": ["Folds in one motion for car boots", "Lightweight, easy-to-handle frame",
-                       "Puncture-free solid tyres", "Detachable battery for easy charging",
-                       "Intuitive joystick control"],
-        "bestfor": "Indoor use and short daily outings.",
-    },
-    {
-        "slug": "urban-u2", "name": "Stride Urban U2", "tag": "City commuter",
-        "badge": "in", "price": "PKR 235,000", "media": "media-indigo",
-        "lead": "A balanced everyday chair for city life. Comfortable seating, responsive controls and a "
-                "dependable battery make it a confident companion for errands, visits and daily commutes.",
-        "quick": [("Range", "22 km"), ("Top speed", "8 km/h"), ("Max load", "120 kg"), ("Foldable", "Yes")],
-        "specs": [
-            ("Range per charge", "22 km"), ("Top speed", "8 km/h"), ("Max load", "120 kg"),
-            ("Kerb weight", "27 kg"), ("Battery", "Li-ion 24V 20Ah"), ("Motor", "Brushless 300W"),
-            ("Charge time", "6–8 hrs"), ("Foldable", "Yes"), ("Suspension", "Front"),
-            ("Tyres", "Anti-slip solid"), ("Controls", "Joystick"), ("Warranty", "1 year"),
-        ],
-        "highlights": ["Comfortable all-day seating", "Front suspension for smoother rides",
-                       "Responsive, easy handling", "Foldable for transport", "Reliable city range"],
-        "bestfor": "Everyday city travel and errands.",
-    },
-    {
-        "slug": "cruise-c3", "name": "Stride Cruise C3", "tag": "Comfort · Mid",
-        "badge": "in", "price": "PKR 265,000", "media": "media-teal",
-        "lead": "Extra padding, adjustable armrests and a smoother ride for longer daily use indoors and "
-                "out. The Cruise C3 is our sweet spot of comfort, range and value.",
-        "quick": [("Range", "25 km"), ("Top speed", "8 km/h"), ("Max load", "120 kg"), ("Foldable", "Yes")],
-        "specs": [
-            ("Range per charge", "25 km"), ("Top speed", "8 km/h"), ("Max load", "120 kg"),
-            ("Kerb weight", "30 kg"), ("Battery", "Li-ion 24V 20Ah"), ("Motor", "Brushless 300W"),
-            ("Charge time", "6–8 hrs"), ("Foldable", "Yes"), ("Seat", "Padded, adjustable armrests"),
-            ("Tyres", "PU solid"), ("Controls", "Joystick"), ("Warranty", "1 year"),
-        ],
-        "highlights": ["Padded seat with adjustable armrests", "Smooth, stable ride quality",
-                       "Strong 25 km range", "Comfortable for longer sessions", "Foldable frame"],
-        "bestfor": "Longer daily use with extra comfort.",
-    },
-    {
-        "slug": "compact-air", "name": "Stride Compact Air", "tag": "Ultra-light · Travel",
-        "badge": "in", "price": "PKR 320,000", "media": "media-amber",
-        "lead": "Just 18 kg and airline-friendly. The Compact Air folds in seconds and lifts easily ideal "
-                "for travel, hotels and getting in and out of taxis without a struggle.",
-        "quick": [("Range", "20 km"), ("Top speed", "6 km/h"), ("Max load", "110 kg"), ("Weight", "18 kg")],
-        "specs": [
-            ("Range per charge", "20 km"), ("Top speed", "6 km/h"), ("Max load", "110 kg"),
-            ("Kerb weight", "18 kg"), ("Battery", "Li-ion (airline-safe)"), ("Motor", "Brushless 250W"),
-            ("Charge time", "5–7 hrs"), ("Foldable", "Yes (auto-fold option)"),
-            ("Tyres", "Solid"), ("Controls", "Joystick"), ("Warranty", "1 year"),
-        ],
-        "highlights": ["Only 18 kg easy to lift", "Airline-safe lithium battery",
-                       "Folds in seconds", "Perfect for travel and taxis", "Optional auto-fold remote"],
-        "bestfor": "Travel, flights and frequent transfers.",
-    },
-    {
-        "slug": "terra-x", "name": "Stride Terra X", "tag": "All-terrain · Dual motor",
-        "badge": "limited", "price": "PKR 420,000", "media": "media-indigo",
-        "lead": "Dual-motor power and rugged pneumatic tyres for rough roads, ramps and outdoor use. Built "
-                "for range and stability, the Terra X keeps going where lighter chairs stop.",
-        "quick": [("Range", "35 km"), ("Top speed", "10 km/h"), ("Max load", "150 kg"), ("Motor", "Dual")],
-        "specs": [
-            ("Range per charge", "35 km"), ("Top speed", "10 km/h"), ("Max load", "150 kg"),
-            ("Kerb weight", "42 kg"), ("Battery", "Li-ion 24V 30Ah"), ("Motor", "Dual 2×350W"),
-            ("Charge time", "8–10 hrs"), ("Foldable", "No"), ("Suspension", "Full"),
-            ("Tyres", "Pneumatic off-road"), ("Controls", "Joystick"), ("Warranty", "1 year"),
-        ],
-        "highlights": ["Dual 350W motors for tough terrain", "Long 35 km range",
-                       "Full suspension for stability", "High 150 kg load capacity",
-                       "Pneumatic off-road tyres"],
-        "bestfor": "Rough roads, ramps and outdoor terrain.",
-    },
-    {
-        "slug": "recline-r5", "name": "Stride Recline R5", "tag": "Full recline · High support",
-        "badge": "pre", "price": "PKR 495,000", "media": "media-amber",
-        "lead": "A full reclining backrest and elevating legrests for maximum comfort and pressure relief "
-                "during long sitting. The Recline R5 is our highest-support chair, built for extended use.",
-        "quick": [("Range", "30 km"), ("Top speed", "8 km/h"), ("Max load", "135 kg"), ("Recline", "Full")],
-        "specs": [
-            ("Range per charge", "30 km"), ("Top speed", "8 km/h"), ("Max load", "135 kg"),
-            ("Kerb weight", "38 kg"), ("Battery", "Li-ion 24V 25Ah"), ("Motor", "Brushless 350W"),
-            ("Charge time", "8–10 hrs"), ("Backrest", "Full recline"), ("Legrests", "Elevating"),
-            ("Controls", "Joystick + recline"), ("Warranty", "1 year"),
-        ],
-        "highlights": ["Full reclining backrest", "Elevating legrests", "Excellent pressure relief",
-                       "High-support seating", "Powerful 350W motor"],
-        "bestfor": "Extended sitting and maximum pressure relief.",
-    },
-]
+# These globals are filled from the Site Settings sheet in load_data().
+WA = "923001234567"
+PHONE = "+92 300 1234567"
+HOURS = "Sat–Thu, 10am–7pm"
+GENERAL_WA = ""
+
+
+# --------------------------------------------------------------------------- #
+# Load
+# --------------------------------------------------------------------------- #
+def _clean(v):
+    if v is None:
+        return ""
+    if isinstance(v, float) and v.is_integer():
+        v = int(v)
+    return str(v).strip()
+
+
+def load_data(path):
+    wb = openpyxl.load_workbook(path, data_only=True)
+
+    # ---- Site settings ----
+    settings = {}
+    if "Site Settings" in wb.sheetnames:
+        for row in wb["Site Settings"].iter_rows(values_only=True):
+            if row and row[0] and len(row) > 1 and row[1] is not None:
+                settings[_clean(row[0])] = _clean(row[1])
+
+    # ---- Products ----
+    ws = wb["Products"]
+    rows = list(ws.iter_rows(values_only=True))
+    # Row 0 is the group banner, row 1 is the real header, data starts at row 2.
+    header = [_clean(c) for c in rows[1]]
+    idx = {name: i for i, name in enumerate(header)}
+
+    def cell(row, name):
+        i = idx.get(name)
+        return _clean(row[i]) if i is not None and i < len(row) else ""
+
+    products = []
+    for row in rows[2:]:
+        if not row or not _clean(row[idx["Product Name"]]):
+            continue
+        name = cell(row, "Product Name")
+        slug = cell(row, "Slug (URL id)")
+        badge = STATUS_TO_BADGE.get(cell(row, "Stock Status").lower(), "in")
+        price_num = cell(row, "Price (PKR)")
+        price = f"PKR {int(price_num):,}" if price_num.isdigit() else price_num
+
+        rng = cell(row, "Range (km)")
+        spd = cell(row, "Top Speed (km/h)")
+        load = cell(row, "Max Load (kg)")
+        kerb = cell(row, "Kerb Weight (kg)")
+
+        # 4th card tile is author-controlled (label + value, value carries its own unit)
+        quick = [
+            ("Range", f"{rng} km"),
+            ("Top speed", f"{spd} km/h"),
+            ("Max load", f"{load} kg"),
+            (cell(row, "Card Spec 4 — Label"), cell(row, "Card Spec 4 — Value")),
+        ]
+
+        # Full spec table: fixed order, blanks dropped.
+        spec_src = [
+            ("Range per charge", f"{rng} km" if rng else ""),
+            ("Top speed", f"{spd} km/h" if spd else ""),
+            ("Max load", f"{load} kg" if load else ""),
+            ("Kerb weight", f"{kerb} kg" if kerb else ""),
+            ("Battery", cell(row, "Battery")),
+            ("Motor", cell(row, "Motor")),
+            ("Charge time", cell(row, "Charge Time")),
+            ("Foldable", cell(row, "Foldable")),
+            ("Suspension", cell(row, "Suspension")),
+            ("Seat", cell(row, "Seat")),
+            ("Backrest", cell(row, "Backrest")),
+            ("Legrests", cell(row, "Legrests")),
+            ("Tyres", cell(row, "Tyres")),
+            ("Controls", cell(row, "Controls")),
+            ("Warranty", cell(row, "Warranty")),
+        ]
+        specs = [(k, v) for k, v in spec_src if v]
+
+        highlights = [
+            cell(row, f"Highlight {n}") for n in range(1, 6) if cell(row, f"Highlight {n}")
+        ]
+
+        # Compare-view specs (app.js). Missing → em dash.
+        backrest, legrests = cell(row, "Backrest"), cell(row, "Legrests")
+        if backrest and legrests:
+            recline = f"{backrest.replace(' recline', '')} + {legrests.lower()} legrests"
+        elif backrest:
+            recline = backrest
+        else:
+            recline = "—"
+        compare_specs = [
+            ("Range", f"{rng} km"),
+            ("Top speed", f"{spd} km/h"),
+            ("Max load", f"{load} kg"),
+            ("Kerb weight", f"{kerb} kg"),
+            ("Battery", cell(row, "Battery") or "—"),
+            ("Motor", cell(row, "Motor") or "—"),
+            ("Charge time", cell(row, "Charge Time") or "—"),
+            ("Foldable", cell(row, "Foldable") or "—"),
+            ("Suspension", cell(row, "Suspension") or "—"),
+            ("Tyres", cell(row, "Tyres") or "—"),
+            ("Controls", cell(row, "Controls") or "—"),
+            ("Recline", recline),
+            ("Warranty", cell(row, "Warranty") or "—"),
+        ]
+
+        lead = cell(row, "Lead Paragraph")
+        products.append({
+            "slug": slug,
+            "name": name,
+            "category": cell(row, "Category"),
+            "tag": cell(row, "Tag / Label"),
+            "badge": badge,
+            "price": price,
+            "image": cell(row, "Image File") or "q5.png",
+            "media": MEDIA_BY_SLUG.get(slug, MEDIA_ROTATION[len(products) % 3]),
+            "card_desc": cell(row, "Card Description"),
+            "lead": lead,
+            "meta": cell(row, "SEO Meta Description") or lead[:150],
+            "quick": quick,
+            "specs": specs,
+            "compare_specs": compare_specs,
+            "highlights": highlights,
+            "bestfor": cell(row, "Best For"),
+        })
+    return products, settings
+
+
+# --------------------------------------------------------------------------- #
+# WhatsApp links
+# --------------------------------------------------------------------------- #
+def wa_link(p):
+    if p["badge"] == "pre":
+        msg = f"Hi Stride, I'd like to pre-order the {p['name']}. Please share details and timeline."
+    else:
+        msg = (f"Hi Stride, I'm interested in the {p['name']} electric wheelchair. "
+               "Please share availability and final price.")
+    return f"https://wa.me/{WA}?text={quote(msg)}"
+
+
+def wa_link_short(p):
+    """Homepage-card variant (no 'electric wheelchair'), matching the existing copy."""
+    if p["badge"] == "pre":
+        msg = f"Hi Stride, I'd like to pre-order the {p['name']}. Please share details and timeline."
+    else:
+        msg = f"Hi Stride, I'm interested in the {p['name']}. Please share availability and final price."
+    return f"https://wa.me/{WA}?text={quote(msg)}"
+
+
+def related_products(products, p, limit=3):
+    """Same-category models first, then others; excludes the current product."""
+    rest = [x for x in products if x["slug"] != p["slug"]]
+    same = [x for x in rest if x["category"] == p["category"]]
+    others = [x for x in rest if x["category"] != p["category"]]
+    return (same + others)[:limit]
+
+
+# --------------------------------------------------------------------------- #
+# Homepage cards + compare data
+# --------------------------------------------------------------------------- #
+def home_card_html(p):
+    badge_class, badge_text = BADGES[p["badge"]]
+    specs = "\n".join(
+        f"                <li><span>{k}</span><strong>{v}</strong></li>" for k, v in p["quick"]
+    )
+    return f"""          <article class="card" data-category="{p['category']}">
+            <div class="card-media {p['media']}">
+              <span class="badge {badge_class}">{badge_text}</span>
+              <button class="compare-toggle" type="button" data-compare="{p['slug']}" aria-pressed="false">
+                <svg class="icon" aria-hidden="true"><use href="#ic-check"/></svg><span class="compare-toggle-label">Compare</span>
+              </button>
+              <img class="card-photo" src="images/{p['image']}" alt="{p['name']} carbon-fibre electric wheelchair" loading="lazy">
+            </div>
+            <div class="card-body">
+              <div class="card-top">
+                <h3><a class="card-title-link" href="products/{p['slug']}.html">{p['name']}</a></h3>
+                <span class="tag">{p['tag']}</span>
+              </div>
+              <p class="card-desc">{p['card_desc']}</p>
+              <ul class="specs">
+{specs}
+              </ul>
+              <div class="card-foot">
+                <div class="price">{p['price']}</div>
+                <a class="btn btn-primary btn-block" href="tel:+{WA}">
+                  <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg><span>Call now</span>
+                </a>
+                <a class="btn btn-wa btn-block" href="{wa_link_short(p)}" target="_blank" rel="noopener">
+                  <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg><span>Chat on WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </article>"""
+
+
+def _js_str(s):
+    return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'"
+
+
+def compare_models_block(products):
+    lines = ["const COMPARE_MODELS = {"]
+    for p in products:
+        specs = ", ".join(f"{_js_str(k)}: {_js_str(v)}" for k, v in p["compare_specs"])
+        lines.append(f"  {_js_str(p['slug'])}: {{")
+        lines.append(
+            f"    name: {_js_str(p['name'])}, tag: {_js_str(p['tag'])}, "
+            f"price: {_js_str(p['price'])}, img: {_js_str('images/' + p['image'])},"
+        )
+        lines.append(f"    wa: {_js_str(wa_link_short(p))},")
+        lines.append(f"    specs: {{ {specs} }},")
+        lines.append("  },")
+    lines.append("};")
+    return "\n".join(lines)
+
+
+def inject(path, start_marker, end_marker, content):
+    """Replace whatever sits between two markers (markers kept) with `content`."""
+    with open(path) as f:
+        text = f.read()
+    pattern = re.compile(
+        re.escape(start_marker) + r".*?" + re.escape(end_marker), re.DOTALL
+    )
+    if not pattern.search(text):
+        raise SystemExit(f"markers not found in {os.path.relpath(path, ROOT)}")
+    replacement = f"{start_marker}\n{content}\n{end_marker}"
+    text = pattern.sub(lambda _m: replacement, text, count=1)
+    with open(path, "w") as f:
+        f.write(text)
+
 
 SYMBOLS = """  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <symbol id="ic-wheelchair" viewBox="0 0 24 24">
@@ -155,27 +299,13 @@ SYMBOLS = """  <svg width="0" height="0" style="position:absolute" aria-hidden="
   </svg>"""
 
 
-def wa_link(p):
-    if p["badge"] == "pre":
-        msg = f"Hi Stride, I'd like to pre-order the {p['name']}. Please share details and timeline."
-    else:
-        msg = f"Hi Stride, I'm interested in the {p['name']} electric wheelchair. Please share availability and final price."
-    return f"https://wa.me/{WA}?text={quote(msg)}"
-
-
-def related_products(p, limit=3):
-    """Same-category models first, then others; excludes the current product."""
-    cat = CATEGORY.get(p["slug"])
-    rest = [x for x in PRODUCTS if x["slug"] != p["slug"]]
-    same = [x for x in rest if CATEGORY.get(x["slug"]) == cat]
-    others = [x for x in rest if CATEGORY.get(x["slug"]) != cat]
-    return (same + others)[:limit]
-
-
+# --------------------------------------------------------------------------- #
+# Detail-page card + page
+# --------------------------------------------------------------------------- #
 def card_html(rp):
     """A compact model card (matches the homepage grid) for the related section."""
     badge_class, badge_text = BADGES[rp["badge"]]
-    short = rp["lead"].split(". ")[0].rstrip(".") + "."
+    short = (rp["lead"].split(". ")[0].rstrip(".") + ".") if rp["lead"] else rp["card_desc"]
     specs = "\n".join(
         f'                <li><span>{k}</span><strong>{v}</strong></li>' for k, v in rp["quick"]
     )
@@ -195,7 +325,7 @@ def card_html(rp):
                 </ul>
                 <div class="card-foot">
                   <div class="price">{rp['price']}</div>
-                  <a class="btn btn-primary btn-block" href="tel:+923001234567">
+                  <a class="btn btn-primary btn-block" href="tel:+{WA}">
                     <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg><span>Call now</span>
                   </a>
                   <a class="btn btn-wa btn-block" href="{wa_link(rp)}" target="_blank" rel="noopener">
@@ -206,7 +336,7 @@ def card_html(rp):
             </article>"""
 
 
-def render(p):
+def render(p, products):
     badge_class, badge_text = BADGES[p["badge"]]
     quick = "\n".join(
         f'              <li><span>{k}</span><strong>{v}</strong></li>' for k, v in p["quick"]
@@ -218,14 +348,14 @@ def render(p):
         f'              <li><svg class="icon" aria-hidden="true"><use href="#ic-check"/></svg><span>{h}</span></li>'
         for h in p["highlights"]
     )
-    related_html = "\n".join(card_html(rp) for rp in related_products(p))
+    related_html = "\n".join(card_html(rp) for rp in related_products(products, p))
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{p['name']} Stride Electric Wheelchairs</title>
-  <meta name="description" content="{p['lead'][:150]}">
+  <meta name="description" content="{p['meta']}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap">
@@ -239,9 +369,9 @@ def render(p):
     <div class="container topbar-inner">
       <span class="topbar-msg"><svg class="icon" aria-hidden="true"><use href="#ic-truck"/></svg> Free delivery across Pakistan</span>
       <span class="topbar-contact">
-        <a href="{GENERAL_WA}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg> +92 300 1234567</a>
+        <a href="{GENERAL_WA}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg> {PHONE}</a>
         <span class="topbar-sep" aria-hidden="true">·</span>
-        <span class="topbar-hours">Sat–Thu, 10am–7pm</span>
+        <span class="topbar-hours">{HOURS}</span>
       </span>
     </div>
   </div>
@@ -253,9 +383,10 @@ def render(p):
       <nav class="nav" aria-label="Primary">
         <a href="../index.html#models">Models</a>
         <a href="../index.html#why">Why Stride</a>
+        <a href="../index.html#compare">Compare</a>
         <a href="../index.html#contact">Contact</a>
       </nav>
-      <a class="btn btn-primary header-cta" href="tel:+923001234567">
+      <a class="btn btn-primary header-cta" href="tel:+{WA}">
         <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>
         <span>Call now</span>
       </a>
@@ -266,8 +397,9 @@ def render(p):
     <nav class="mobile-nav" id="mobileNav" aria-label="Mobile">
       <a href="../index.html#models">Models</a>
       <a href="../index.html#why">Why Stride</a>
+      <a href="../index.html#compare">Compare</a>
       <a href="../index.html#contact">Contact</a>
-      <a class="btn btn-primary" href="tel:+923001234567">Call now for free consultation</a>
+      <a class="btn btn-primary" href="tel:+{WA}">Call now for free consultation</a>
       <a class="btn btn-wa" href="{wa_link(p)}" target="_blank" rel="noopener">Chat on WhatsApp</a>
     </nav>
   </header>
@@ -287,7 +419,7 @@ def render(p):
             <h1>{p['name']}</h1>
             <p class="pdp-lead">{p['lead']}</p>
             <div class="pdp-price">{p['price']}</div>
-            <a class="btn btn-primary btn-lg" href="tel:+923001234567">
+            <a class="btn btn-primary btn-lg" href="tel:+{WA}">
               <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg><span>Call now for free consultation</span>
             </a>
             <a class="btn btn-wa btn-lg" href="{wa_link(p)}" target="_blank" rel="noopener">
@@ -336,12 +468,12 @@ def render(p):
             <h2>Questions about the {p['name']}?</h2>
             <p>Call us for a free consultation on live stock, delivery time to your city and the final quote. Prefer to type? Message us on WhatsApp and we'll send real photos and answer anything.</p>
             <div class="contact-meta">
-              <p><strong>WhatsApp / Phone:</strong> +92 300 1234567</p>
-              <p><strong>Hours:</strong> Sat–Thu, 10am–7pm · Serving all of Pakistan</p>
+              <p><strong>WhatsApp / Phone:</strong> {PHONE}</p>
+              <p><strong>Hours:</strong> {HOURS} · Serving all of Pakistan</p>
             </div>
           </div>
           <div class="contact-cta">
-            <a class="btn btn-primary btn-lg" href="tel:+923001234567">
+            <a class="btn btn-primary btn-lg" href="tel:+{WA}">
               <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>
               <span>Call now for free consultation</span>
             </a>
@@ -373,7 +505,7 @@ def render(p):
     </div>
   </footer>
 
-  <a class="call-float" href="tel:+923001234567" aria-label="Call now for a free consultation">
+  <a class="call-float" href="tel:+{WA}" aria-label="Call now for a free consultation">
     <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>
   </a>
   <a class="wa-float" href="{wa_link(p)}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
@@ -387,14 +519,42 @@ def render(p):
 
 
 def main():
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    out_dir = os.path.join(root, "products")
+    global WA, PHONE, HOURS, GENERAL_WA
+    products, settings = load_data(DATA_PATH)
+    WA = settings.get("WhatsApp number (digits, for links)", WA)
+    PHONE = settings.get("Business phone (display)", PHONE)
+    HOURS = settings.get("Business hours", HOURS)
+    GENERAL_WA = f"https://wa.me/{WA}?text=" + quote(
+        "Hi Stride, I'd like to know more about your electric wheelchairs."
+    )
+
+    # 1) Detail pages
+    out_dir = os.path.join(ROOT, "products")
     os.makedirs(out_dir, exist_ok=True)
-    for p in PRODUCTS:
+    for p in products:
         path = os.path.join(out_dir, f"{p['slug']}.html")
         with open(path, "w") as f:
-            f.write(render(p))
+            f.write(render(p, products))
         print(f"wrote products/{p['slug']}.html")
+
+    # 2) Homepage cards
+    cards = "\n".join(home_card_html(p) for p in products)
+    inject(
+        os.path.join(ROOT, "index.html"),
+        "<!-- CARDS:START — generated from product-data.xlsx by scripts/generate_products.py -->",
+        "<!-- CARDS:END -->",
+        "\n" + cards + "\n",
+    )
+    print("updated index.html #modelGrid")
+
+    # 3) Compare data in app.js
+    inject(
+        os.path.join(ROOT, "app.js"),
+        "/* COMPARE_MODELS:START — generated from product-data.xlsx by scripts/generate_products.py */",
+        "/* COMPARE_MODELS:END */",
+        compare_models_block(products),
+    )
+    print("updated app.js COMPARE_MODELS")
 
 
 if __name__ == "__main__":

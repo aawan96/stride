@@ -42,6 +42,7 @@ const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
 /* ---------------- Compare models ---------------- */
+/* COMPARE_MODELS:START — generated from product-data.xlsx by scripts/generate_products.py */
 const COMPARE_MODELS = {
   'glide-s1': {
     name: 'Stride Glide S1', tag: 'Folding · Entry', price: 'PKR 185,000', img: 'images/q5.png',
@@ -74,6 +75,7 @@ const COMPARE_MODELS = {
     specs: { 'Range': '30 km', 'Top speed': '8 km/h', 'Max load': '135 kg', 'Kerb weight': '38 kg', 'Battery': 'Li-ion 24V 25Ah', 'Motor': 'Brushless 350W', 'Charge time': '8–10 hrs', 'Foldable': '—', 'Suspension': '—', 'Tyres': '—', 'Controls': 'Joystick + recline', 'Recline': 'Full + elevating legrests', 'Warranty': '1 year' },
   },
 };
+/* COMPARE_MODELS:END */
 
 const SPEC_ORDER = ['Range', 'Top speed', 'Max load', 'Kerb weight', 'Battery', 'Motor', 'Charge time', 'Foldable', 'Suspension', 'Tyres', 'Controls', 'Recline', 'Warranty'];
 // Which rows have a "best" value, and whether higher or lower wins.
