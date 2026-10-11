@@ -44,35 +44,35 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
 /* ---------------- Compare models ---------------- */
 /* COMPARE_MODELS:START — generated from product-data.xlsx by scripts/generate_products.py */
 const COMPARE_MODELS = {
-  'glide-s1': {
-    name: 'Stride Glide S1', tag: 'Folding · Entry', price: 'PKR 185,000', img: 'images/q5.png',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Glide%20S1.%20Please%20share%20availability%20and%20final%20price.',
-    specs: { 'Range': '15 km', 'Top speed': '6 km/h', 'Max load': '100 kg', 'Kerb weight': '24 kg', 'Battery': 'Li-ion 24V 12Ah', 'Motor': 'Brushless 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes (one-fold)', 'Suspension': '—', 'Tyres': 'Solid, puncture-free', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
+  'eco-e1': {
+    name: 'Stride ECO E1', tag: 'Folding · Entry', price: 'PKR 125,000', img: 'images/q5.png',
+    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20ECO%20E1.%20Please%20share%20availability%20and%20final%20price.',
+    specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '100 kg', 'Kerb weight': '48 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
   'urban-u2': {
-    name: 'Stride Urban U2', tag: 'City commuter', price: 'PKR 235,000', img: 'images/q5.png',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Urban%20U2.%20Please%20share%20availability%20and%20final%20price.',
-    specs: { 'Range': '22 km', 'Top speed': '8 km/h', 'Max load': '120 kg', 'Kerb weight': '27 kg', 'Battery': 'Li-ion 24V 20Ah', 'Motor': 'Brushless 300W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': 'Front', 'Tyres': 'Anti-slip solid', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
+    name: 'Stride Value V2', tag: 'City commuter', price: 'PKR 149,000', img: 'images/q5.png',
+    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Value%20V2.%20Please%20share%20availability%20and%20final%20price.',
+    specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '48 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
   'cruise-c3': {
-    name: 'Stride Cruise C3', tag: 'Comfort · Mid', price: 'PKR 265,000', img: 'images/q5.png',
+    name: 'Stride Cruise C3', tag: 'Rugged · All terrain', price: 'PKR 161,000', img: 'images/q5.png',
     wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Cruise%20C3.%20Please%20share%20availability%20and%20final%20price.',
-    specs: { 'Range': '25 km', 'Top speed': '8 km/h', 'Max load': '120 kg', 'Kerb weight': '30 kg', 'Battery': 'Li-ion 24V 20Ah', 'Motor': 'Brushless 300W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'PU solid', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
+    specs: { 'Range': '20-25 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '50 kg', 'Battery': 'Sealed Lead Acid 24V 20Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'yes', 'Suspension': 'Rear', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
+  },
+  'recline-r4': {
+    name: 'Stride Recline R4', tag: 'Comfort-', price: 'PKR 179,000', img: 'images/q5.png',
+    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Recline%20R4.%20Please%20share%20availability%20and%20final%20price.',
+    specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '48 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': 'Extended Headrest · Adjustable', 'Warranty': '1 year' },
+  },
+  'pr-x': {
+    name: 'Stride Power Recline PR-X', tag: 'Extra Comfort - Full independence', price: 'PKR 222,000', img: 'images/q5.png',
+    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Power%20Recline%20PR-X.%20Please%20share%20availability%20and%20final%20price.',
+    specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '50 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': 'Extended Headrest · Remote control Adjustable leg rests', 'Warranty': '1 year' },
   },
   'compact-air': {
-    name: 'Stride Compact Air', tag: 'Ultra-light · Travel', price: 'PKR 320,000', img: 'images/q5.png',
+    name: 'Stride Compact Air', tag: 'Ultra-light · Travel', price: 'PKR 420,000', img: 'images/q5.png',
     wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Compact%20Air.%20Please%20share%20availability%20and%20final%20price.',
-    specs: { 'Range': '20 km', 'Top speed': '6 km/h', 'Max load': '110 kg', 'Kerb weight': '18 kg', 'Battery': 'Li-ion (airline-safe)', 'Motor': 'Brushless 250W', 'Charge time': '5–7 hrs', 'Foldable': 'Yes (auto-fold option)', 'Suspension': '—', 'Tyres': 'Solid', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
-  },
-  'terra-x': {
-    name: 'Stride Terra X', tag: 'All-terrain · Dual motor', price: 'PKR 420,000', img: 'images/q5.png',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Terra%20X.%20Please%20share%20availability%20and%20final%20price.',
-    specs: { 'Range': '35 km', 'Top speed': '10 km/h', 'Max load': '150 kg', 'Kerb weight': '42 kg', 'Battery': 'Li-ion 24V 30Ah', 'Motor': 'Dual 2×350W', 'Charge time': '8–10 hrs', 'Foldable': 'No', 'Suspension': 'Full', 'Tyres': 'Pneumatic off-road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
-  },
-  'recline-r5': {
-    name: 'Stride Recline R5', tag: 'Full recline · High support', price: 'PKR 495,000', img: 'images/q5.png',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27d%20like%20to%20pre-order%20the%20Stride%20Recline%20R5.%20Please%20share%20details%20and%20timeline.',
-    specs: { 'Range': '30 km', 'Top speed': '8 km/h', 'Max load': '135 kg', 'Kerb weight': '38 kg', 'Battery': 'Li-ion 24V 25Ah', 'Motor': 'Brushless 350W', 'Charge time': '8–10 hrs', 'Foldable': '—', 'Suspension': '—', 'Tyres': '—', 'Controls': 'Joystick + recline', 'Recline': 'Full + elevating legrests', 'Warranty': '1 year' },
+    specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '26 kg', 'Battery': 'Li-ion 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': 'Full', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
 };
 /* COMPARE_MODELS:END */

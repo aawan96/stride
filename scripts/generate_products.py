@@ -53,7 +53,9 @@ def _clean(v):
         return ""
     if isinstance(v, float) and v.is_integer():
         v = int(v)
-    return str(v).strip()
+    # Collapse internal newlines / runs of whitespace so values are safe inline
+    # (HTML attributes, single-line spec cells, and generated JS strings).
+    return re.sub(r"\s+", " ", str(v)).strip()
 
 
 def load_data(path):
@@ -126,12 +128,7 @@ def load_data(path):
 
         # Compare-view specs (app.js). Missing → em dash.
         backrest, legrests = cell(row, "Backrest"), cell(row, "Legrests")
-        if backrest and legrests:
-            recline = f"{backrest.replace(' recline', '')} + {legrests.lower()} legrests"
-        elif backrest:
-            recline = backrest
-        else:
-            recline = "—"
+        recline = " · ".join(x for x in (backrest, legrests) if x) or "—"
         compare_specs = [
             ("Range", f"{rng} km"),
             ("Top speed", f"{spd} km/h"),
@@ -160,7 +157,7 @@ def load_data(path):
             "media": MEDIA_BY_SLUG.get(slug, MEDIA_ROTATION[len(products) % 3]),
             "card_desc": cell(row, "Card Description"),
             "lead": lead,
-            "meta": cell(row, "SEO Meta Description") or lead[:150],
+            "meta": (cell(row, "SEO Meta Description") or lead)[:160],
             "quick": quick,
             "specs": specs,
             "compare_specs": compare_specs,
@@ -238,7 +235,9 @@ def home_card_html(p):
 
 
 def _js_str(s):
-    return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'"
+    s = (s.replace("\\", "\\\\").replace("'", "\\'")
+          .replace("\n", "\\n").replace("\r", ""))
+    return "'" + s + "'"
 
 
 def compare_models_block(products):
@@ -536,6 +535,13 @@ def main():
         with open(path, "w") as f:
             f.write(render(p, products))
         print(f"wrote products/{p['slug']}.html")
+
+    # Remove detail pages for products no longer in the sheet.
+    valid = {f"{p['slug']}.html" for p in products}
+    for fn in os.listdir(out_dir):
+        if fn.endswith(".html") and fn not in valid:
+            os.remove(os.path.join(out_dir, fn))
+            print(f"removed stale products/{fn}")
 
     # 2) Homepage cards
     cards = "\n".join(home_card_html(p) for p in products)
