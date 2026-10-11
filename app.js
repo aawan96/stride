@@ -50,7 +50,7 @@ const COMPARE_MODELS = {
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '100 kg', 'Kerb weight': '48 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
   'urban-u2': {
-    name: 'Stride Value V2', tag: 'City commuter', price: 'PKR 149,000', img: 'images/q5.png',
+    name: 'Stride Value V2', tag: 'Folding · Value', price: 'PKR 149,000', img: 'images/q5.png',
     wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Value%20V2.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '48 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
@@ -60,12 +60,12 @@ const COMPARE_MODELS = {
     specs: { 'Range': '20-25 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '50 kg', 'Battery': 'Sealed Lead Acid 24V 20Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'yes', 'Suspension': 'Rear', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
   'recline-r4': {
-    name: 'Stride Recline R4', tag: 'Comfort-', price: 'PKR 179,000', img: 'images/q5.png',
+    name: 'Stride Recline R4', tag: 'Comfort · Recline', price: 'PKR 179,000', img: 'images/q5.png',
     wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Recline%20R4.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '48 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': 'Extended Headrest · Adjustable', 'Warranty': '1 year' },
   },
   'pr-x': {
-    name: 'Stride Power Recline PR-X', tag: 'Extra Comfort - Full independence', price: 'PKR 222,000', img: 'images/q5.png',
+    name: 'Stride Power Recline PR-X', tag: 'Extra comfort · Full independence', price: 'PKR 222,000', img: 'images/q5.png',
     wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Power%20Recline%20PR-X.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '50 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': 'Extended Headrest · Remote control Adjustable leg rests', 'Warranty': '1 year' },
   },
