@@ -70,7 +70,7 @@ const COMPARE_MODELS = {
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '50 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': 'Extended Headrest · Remote control Adjustable leg rests', 'Warranty': '1 year' },
   },
   'compact-air': {
-    name: 'Stride Compact Air', tag: 'Ultra-light · Travel', price: 'PKR 420,000', img: 'images/compact-air.jpg',
+    name: 'Stride Compact Air', tag: 'Ultra-light · Travel', price: 'PKR 420,000', img: 'images/q5.png',
     wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Compact%20Air.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '26 kg', 'Battery': 'Li-ion 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': 'Full', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
