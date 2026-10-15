@@ -311,7 +311,7 @@ def card_html(rp):
     return f"""            <article class="card">
               <div class="card-media {rp['media']}">
                 <span class="badge {badge_class}">{badge_text}</span>
-                <svg class="card-chair"><use href="#ic-wheelchair"/></svg>
+                <img class="card-photo" src="../images/{rp['image']}" alt="{rp['name']} electric wheelchair" loading="lazy">
               </div>
               <div class="card-body">
                 <div class="card-top">
@@ -411,7 +411,7 @@ def render(p, products):
         <div class="pdp-hero">
           <div class="pdp-media {p['media']}">
             <span class="badge {badge_class}">{badge_text}</span>
-            <svg class="pdp-chair"><use href="#ic-wheelchair"/></svg>
+            <img class="pdp-photo" src="../images/{p['image']}" alt="{p['name']} electric wheelchair">
           </div>
           <div class="pdp-info">
             <span class="tag">{p['tag']}</span>

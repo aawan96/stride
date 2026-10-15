@@ -3,7 +3,7 @@
 # Publish the latest product data to the site.
 #
 # Partners collaborate on the master spreadsheet in OneDrive:
-#   ~/OneDrive/Stride/product-data.xlsx
+#   ~/OneDrive/Stride-Website/product-data.xlsx
 # This script copies that master into the repo, regenerates every page from
 # it, and shows what changed. Review, then commit & push to go live.
 #
@@ -12,7 +12,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-MASTER="${STRIDE_DATA:-$HOME/Library/CloudStorage/OneDrive-Personal/Stride/product-data.xlsx}"
+MASTER="${STRIDE_DATA:-$HOME/Library/CloudStorage/OneDrive-Personal/Stride-Website/product-data.xlsx}"
 
 if [ -f "$MASTER" ]; then
   echo "→ Syncing product data from OneDrive:"
