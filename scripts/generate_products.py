@@ -1,17 +1,30 @@
 #!/usr/bin/env python3
 """Generate site content from the product spreadsheet.
 
-`product-data.xlsx` (repo root) is the single source of truth. Its `Products`
-and `Site Settings` sheets drive:
+`product-data.xlsx` (repo root) is the single source of truth. Its `Products`,
+`Site Settings` and (optional) `Reviews` / `Gallery` sheets drive:
   * products/<slug>.html          — one detail page per model
   * index.html   #modelGrid       — the homepage model cards (CARDS markers)
   * app.js       COMPARE_MODELS    — data for the compare tray/modal/table
 
+Customer reviews are curated: add one row per review to the `Reviews` sheet
+(columns: Slug (URL id) | Customer Name | Rating (1-5) | Location | Date |
+Review). Each product page then shows a star summary, review cards and
+AggregateRating/Review JSON-LD. The sheet is optional — if it is absent, pages
+render exactly as before.
+
+Extra product angles are curated in the optional `Gallery` sheet (columns:
+Slug (URL id) | Image File). Each listed image becomes a thumbnail on that
+product's detail page that swaps the hero photo; the product's own `Image File`
+stays the primary (card, compare, first thumbnail). No rows → single photo.
+
 Run from the repo root:  python3 scripts/generate_products.py
 Requires: openpyxl  (pip install openpyxl)
 """
+import json
 import os
 import re
+from html import escape
 from urllib.parse import quote
 
 import openpyxl
@@ -167,6 +180,81 @@ def load_data(path):
     return products, settings
 
 
+def load_reviews(path):
+    """Return {slug: [review, ...]} from the optional `Reviews` sheet.
+
+    One row per review; blank rows and rows missing a slug/rating/text are
+    skipped. If the sheet is absent (e.g. an older OneDrive master), returns an
+    empty mapping so pages render exactly as before.
+    """
+    wb = openpyxl.load_workbook(path, data_only=True)
+    if "Reviews" not in wb.sheetnames:
+        return {}
+
+    rows = list(wb["Reviews"].iter_rows(values_only=True))
+    if not rows:
+        return {}
+    header = [_clean(c) for c in rows[0]]
+    idx = {name: i for i, name in enumerate(header)}
+
+    def cell(row, name):
+        i = idx.get(name)
+        return _clean(row[i]) if i is not None and i < len(row) else ""
+
+    reviews = {}
+    for row in rows[1:]:
+        if not row:
+            continue
+        slug = cell(row, "Slug (URL id)")
+        text = cell(row, "Review")
+        rating_raw = cell(row, "Rating (1-5)")
+        if not slug or not text or not rating_raw:
+            continue
+        try:
+            rating = max(1, min(5, round(float(rating_raw))))
+        except ValueError:
+            continue
+        reviews.setdefault(slug, []).append({
+            "name": cell(row, "Customer Name") or "Verified customer",
+            "rating": rating,
+            "location": cell(row, "Location"),
+            "date": cell(row, "Date"),
+            "text": text,
+        })
+    return reviews
+
+
+def load_gallery(path):
+    """Return {slug: [extra image file, ...]} from the optional `Gallery` sheet.
+
+    These are *additional* angles shown on the detail page beyond the product's
+    primary `Image File`. Absent sheet / blank rows → no extra images, so pages
+    fall back to the single primary photo exactly as before.
+    """
+    wb = openpyxl.load_workbook(path, data_only=True)
+    if "Gallery" not in wb.sheetnames:
+        return {}
+    rows = list(wb["Gallery"].iter_rows(values_only=True))
+    if not rows:
+        return {}
+    header = [_clean(c) for c in rows[0]]
+    idx = {name: i for i, name in enumerate(header)}
+
+    def cell(row, name):
+        i = idx.get(name)
+        return _clean(row[i]) if i is not None and i < len(row) else ""
+
+    gallery = {}
+    for row in rows[1:]:
+        if not row:
+            continue
+        slug = cell(row, "Slug (URL id)")
+        img = cell(row, "Image File")
+        if slug and img:
+            gallery.setdefault(slug, []).append(img)
+    return gallery
+
+
 # --------------------------------------------------------------------------- #
 # WhatsApp links
 # --------------------------------------------------------------------------- #
@@ -295,6 +383,9 @@ SYMBOLS = """  <svg width="0" height="0" style="position:absolute" aria-hidden="
     <symbol id="ic-phone" viewBox="0 0 24 24">
       <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .7-.2 1z" fill="currentColor"/>
     </symbol>
+    <symbol id="ic-star" viewBox="0 0 24 24">
+      <path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.3l6.5-.9z" fill="currentColor"/>
+    </symbol>
   </svg>"""
 
 
@@ -335,8 +426,134 @@ def card_html(rp):
             </article>"""
 
 
-def render(p, products):
+def stars_html(rating, out_of=5):
+    """Row of filled/empty star icons for an integer-rounded rating."""
+    out = []
+    for i in range(1, out_of + 1):
+        cls = "star is-on" if i <= rating else "star"
+        out.append(
+            f'<svg class="{cls}" aria-hidden="true"><use href="#ic-star"/></svg>'
+        )
+    return "".join(out)
+
+
+def avg_rating(revs):
+    return sum(r["rating"] for r in revs) / len(revs)
+
+
+def reviews_section_html(p, revs):
+    """Customer-reviews section for a detail page; '' when there are none."""
+    if not revs:
+        return ""
+    avg = avg_rating(revs)
+    count = len(revs)
+    noun = "review" if count == 1 else "reviews"
+    cards = []
+    for r in revs:
+        meta_bits = [b for b in (escape(r["location"]), escape(r["date"])) if b]
+        meta = (
+            f'<span class="review-meta">{" · ".join(meta_bits)}</span>'
+            if meta_bits else ""
+        )
+        cards.append(f"""            <figure class="review-card">
+              <div class="stars" role="img" aria-label="{r['rating']} out of 5 stars">{stars_html(r['rating'])}</div>
+              <blockquote class="review-text">{escape(r['text'])}</blockquote>
+              <figcaption class="review-by">
+                <span class="review-name">{escape(r['name'])}</span>
+                {meta}
+              </figcaption>
+            </figure>""")
+    cards_html = "\n".join(cards)
+    return f"""
+    <section class="section reviews" id="reviews" aria-labelledby="reviews-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="reviews-title">What customers say</h2>
+          <div class="reviews-summary">
+            <div class="stars stars-lg" role="img" aria-label="{avg:.1f} out of 5 stars">{stars_html(round(avg))}</div>
+            <span class="reviews-avg">{avg:.1f}</span>
+            <span class="reviews-count">Based on {count} customer {noun}</span>
+          </div>
+        </div>
+        <div class="review-grid">
+{cards_html}
+        </div>
+      </div>
+    </section>
+"""
+
+
+def reviews_jsonld(p, revs):
+    """AggregateRating + Review structured data (schema.org) for rich results."""
+    if not revs:
+        return ""
+    avg = avg_rating(revs)
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": p["name"],
+        "image": f"https://aawan96.github.io/stride/images/{p['image']}",
+        "description": p["meta"],
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": round(avg, 1),
+            "reviewCount": len(revs),
+            "bestRating": 5,
+            "worstRating": 1,
+        },
+        "review": [
+            {
+                "@type": "Review",
+                "author": {"@type": "Person", "name": r["name"]},
+                "reviewRating": {
+                    "@type": "Rating",
+                    "ratingValue": r["rating"],
+                    "bestRating": 5,
+                    "worstRating": 1,
+                },
+                "reviewBody": r["text"],
+                **({"datePublished": r["date"]} if r["date"] else {}),
+            }
+            for r in revs
+        ],
+    }
+    payload = json.dumps(data, ensure_ascii=False, indent=2)
+    return f'  <script type="application/ld+json">\n{payload}\n  </script>\n'
+
+
+def pdp_gallery_html(p, badge_class, badge_text, images):
+    """Hero image + (when there is more than one) a thumbnail strip to swap it."""
+    first = images[0]
+    main = f"""          <div class="pdp-media {p['media']}">
+            <span class="badge {badge_class}">{badge_text}</span>
+            <img class="pdp-photo" id="pdpMain" src="../images/{first}" alt="{p['name']} electric wheelchair">
+          </div>"""
+    if len(images) < 2:
+        return f'        <div class="pdp-gallery">\n{main}\n        </div>'
+    thumbs = []
+    for i, img in enumerate(images):
+        active = " is-active" if i == 0 else ""
+        pressed = "true" if i == 0 else "false"
+        thumbs.append(
+            f"""            <button type="button" class="pdp-thumb{active}" data-full="../images/{img}" aria-label="View {p['name']} photo {i + 1}" aria-pressed="{pressed}">
+              <img src="../images/{img}" alt="" loading="lazy">
+            </button>"""
+        )
+    thumbs_html = "\n".join(thumbs)
+    return f"""        <div class="pdp-gallery">
+{main}
+          <div class="pdp-thumbs" role="group" aria-label="{p['name']} photos">
+{thumbs_html}
+          </div>
+        </div>"""
+
+
+def render(p, products, reviews=None, gallery=None):
+    revs = (reviews or {}).get(p["slug"], [])
+    extras = (gallery or {}).get(p["slug"], [])
+    gallery_images = [p["image"]] + [x for x in extras if x != p["image"]]
     badge_class, badge_text = BADGES[p["badge"]]
+    gallery_html = pdp_gallery_html(p, badge_class, badge_text, gallery_images)
     quick = "\n".join(
         f'              <li><span>{k}</span><strong>{v}</strong></li>' for k, v in p["quick"]
     )
@@ -348,6 +565,8 @@ def render(p, products):
         for h in p["highlights"]
     )
     related_html = "\n".join(card_html(rp) for rp in related_products(products, p))
+    reviews_block = reviews_section_html(p, revs)
+    jsonld = reviews_jsonld(p, revs)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -359,7 +578,7 @@ def render(p, products):
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap">
   <link rel="stylesheet" href="../style.css">
-</head>
+{jsonld}</head>
 <body>
 
 {SYMBOLS}
@@ -409,10 +628,7 @@ def render(p, products):
         <a class="back-link" href="../index.html#models">← All models</a>
 
         <div class="pdp-hero">
-          <div class="pdp-media {p['media']}">
-            <span class="badge {badge_class}">{badge_text}</span>
-            <img class="pdp-photo" src="../images/{p['image']}" alt="{p['name']} electric wheelchair">
-          </div>
+{gallery_html}
           <div class="pdp-info">
             <span class="tag">{p['tag']}</span>
             <h1>{p['name']}</h1>
@@ -447,7 +663,7 @@ def render(p, products):
         </div>
       </div>
     </section>
-
+{reviews_block}
     <section class="section section-alt">
       <div class="container">
         <div class="section-head">
@@ -520,6 +736,8 @@ def render(p, products):
 def main():
     global WA, PHONE, HOURS, GENERAL_WA
     products, settings = load_data(DATA_PATH)
+    reviews = load_reviews(DATA_PATH)
+    gallery = load_gallery(DATA_PATH)
     WA = settings.get("WhatsApp number (digits, for links)", WA)
     PHONE = settings.get("Business phone (display)", PHONE)
     HOURS = settings.get("Business hours", HOURS)
@@ -533,7 +751,7 @@ def main():
     for p in products:
         path = os.path.join(out_dir, f"{p['slug']}.html")
         with open(path, "w") as f:
-            f.write(render(p, products))
+            f.write(render(p, products, reviews, gallery))
         print(f"wrote products/{p['slug']}.html")
 
     # Remove detail pages for products no longer in the sheet.
