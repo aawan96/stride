@@ -251,18 +251,32 @@ if (compareToggles.length) {
 
 /* ---------------- Product gallery (detail page) ---------------- */
 const pdpMain = document.getElementById('pdpMain');
-const pdpThumbs = document.querySelectorAll('.pdp-thumb');
+const pdpThumbs = Array.from(document.querySelectorAll('.pdp-thumb'));
 if (pdpMain && pdpThumbs.length) {
-  pdpThumbs.forEach((thumb) => {
-    thumb.addEventListener('click', () => {
-      const full = thumb.dataset.full;
-      if (!full || thumb.classList.contains('is-active')) return;
-      pdpMain.src = full;
-      pdpThumbs.forEach((t) => {
-        const on = t === thumb;
-        t.classList.toggle('is-active', on);
-        t.setAttribute('aria-pressed', String(on));
-      });
+  let current = Math.max(0, pdpThumbs.findIndex((t) => t.classList.contains('is-active')));
+  const select = (i) => {
+    const n = pdpThumbs.length;
+    current = (i + n) % n; // wrap around
+    const thumb = pdpThumbs[current];
+    pdpMain.src = thumb.dataset.full;
+    pdpThumbs.forEach((t, idx) => {
+      const on = idx === current;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-pressed', String(on));
     });
-  });
+  };
+  pdpThumbs.forEach((thumb, idx) => thumb.addEventListener('click', () => select(idx)));
+
+  const prevBtn = document.querySelector('.pdp-prev');
+  const nextBtn = document.querySelector('.pdp-next');
+  if (prevBtn) prevBtn.addEventListener('click', () => select(current - 1));
+  if (nextBtn) nextBtn.addEventListener('click', () => select(current + 1));
+
+  const gallery = document.querySelector('.pdp-gallery');
+  if (gallery) {
+    gallery.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); select(current - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); select(current + 1); }
+    });
+  }
 }

@@ -24,6 +24,7 @@ Requires: openpyxl  (pip install openpyxl)
 import json
 import os
 import re
+from datetime import date
 from html import escape
 from urllib.parse import quote
 
@@ -32,10 +33,19 @@ import openpyxl
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(ROOT, "product-data.xlsx")
 
+# Canonical site origin (custom domain), used for SEO meta, JSON-LD and sitemap.
+BASE_URL = "https://stridepakistan.com"
+
 BADGES = {
     "in": ("badge-in", "In stock"),
     "limited": ("badge-limited", "Limited stock"),
     "pre": ("badge-pre", "Pre-order"),
+}
+# schema.org availability URLs keyed by our internal badge code.
+AVAILABILITY = {
+    "in": "https://schema.org/InStock",
+    "limited": "https://schema.org/LimitedAvailability",
+    "pre": "https://schema.org/PreOrder",
 }
 STATUS_TO_BADGE = {
     "in stock": "in",
@@ -162,6 +172,7 @@ def load_data(path):
         products.append({
             "slug": slug,
             "name": name,
+            "price_value": price_num if price_num.isdigit() else "",
             "category": cell(row, "Category"),
             "tag": cell(row, "Tag / Label"),
             "badge": badge,
@@ -299,11 +310,11 @@ def home_card_html(p):
                 <svg class="icon" aria-hidden="true"><use href="#ic-check"/></svg><span class="compare-toggle-label">Compare</span>
               </button>
               <img class="card-photo" src="images/{p['image']}" alt="{p['name']} carbon-fibre electric wheelchair" loading="lazy">
+              <span class="tag tag-on-media">{p['tag']}</span>
             </div>
             <div class="card-body">
               <div class="card-top">
                 <h3><a class="card-title-link" href="products/{p['slug']}.html">{p['name']}</a></h3>
-                <span class="tag">{p['tag']}</span>
               </div>
               <p class="card-desc">{p['card_desc']}</p>
               <ul class="specs">
@@ -386,6 +397,9 @@ SYMBOLS = """  <svg width="0" height="0" style="position:absolute" aria-hidden="
     <symbol id="ic-star" viewBox="0 0 24 24">
       <path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.3l6.5-.9z" fill="currentColor"/>
     </symbol>
+    <symbol id="ic-chevron" viewBox="0 0 24 24">
+      <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
   </svg>"""
 
 
@@ -403,11 +417,11 @@ def card_html(rp):
               <div class="card-media {rp['media']}">
                 <span class="badge {badge_class}">{badge_text}</span>
                 <img class="card-photo" src="../images/{rp['image']}" alt="{rp['name']} electric wheelchair" loading="lazy">
+                <span class="tag tag-on-media">{rp['tag']}</span>
               </div>
               <div class="card-body">
                 <div class="card-top">
                   <h3><a class="card-title-link" href="{rp['slug']}.html">{rp['name']}</a></h3>
-                  <span class="tag">{rp['tag']}</span>
                 </div>
                 <p class="card-desc">{short}</p>
                 <ul class="specs">
@@ -483,25 +497,42 @@ def reviews_section_html(p, revs):
 """
 
 
-def reviews_jsonld(p, revs):
-    """AggregateRating + Review structured data (schema.org) for rich results."""
-    if not revs:
-        return ""
-    avg = avg_rating(revs)
+def _jsonld_tag(data):
+    payload = json.dumps(data, ensure_ascii=False, indent=2)
+    return f'  <script type="application/ld+json">\n{payload}\n  </script>\n'
+
+
+def product_jsonld(p, revs, canonical):
+    """Product structured data for rich results: brand, offer (price + stock)
+    and, when present, aggregate rating and individual reviews."""
     data = {
         "@context": "https://schema.org",
         "@type": "Product",
         "name": p["name"],
-        "image": f"https://aawan96.github.io/stride/images/{p['image']}",
+        "image": f"{BASE_URL}/images/{p['image']}",
         "description": p["meta"],
-        "aggregateRating": {
+        "brand": {"@type": "Brand", "name": "Stride"},
+        "category": "Electric Wheelchair",
+    }
+    if p["price_value"]:
+        data["offers"] = {
+            "@type": "Offer",
+            "url": canonical,
+            "priceCurrency": "PKR",
+            "price": p["price_value"],
+            "availability": AVAILABILITY.get(p["badge"], AVAILABILITY["in"]),
+            "seller": {"@type": "Organization", "name": "Stride"},
+        }
+    if revs:
+        avg = avg_rating(revs)
+        data["aggregateRating"] = {
             "@type": "AggregateRating",
             "ratingValue": round(avg, 1),
             "reviewCount": len(revs),
             "bestRating": 5,
             "worstRating": 1,
-        },
-        "review": [
+        }
+        data["review"] = [
             {
                 "@type": "Review",
                 "author": {"@type": "Person", "name": r["name"]},
@@ -515,20 +546,42 @@ def reviews_jsonld(p, revs):
                 **({"datePublished": r["date"]} if r["date"] else {}),
             }
             for r in revs
+        ]
+    return _jsonld_tag(data)
+
+
+def breadcrumb_jsonld(p, canonical):
+    """Home › product breadcrumb trail for search result display."""
+    return _jsonld_tag({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home",
+             "item": f"{BASE_URL}/"},
+            {"@type": "ListItem", "position": 2, "name": p["name"],
+             "item": canonical},
         ],
-    }
-    payload = json.dumps(data, ensure_ascii=False, indent=2)
-    return f'  <script type="application/ld+json">\n{payload}\n  </script>\n'
+    })
 
 
 def pdp_gallery_html(p, badge_class, badge_text, images):
     """Hero image + (when there is more than one) a thumbnail strip to swap it."""
     first = images[0]
+    multi = len(images) > 1
+    nav = ""
+    if multi:
+        nav = f"""
+            <button type="button" class="pdp-nav pdp-prev" aria-label="Previous photo of {p['name']}">
+              <svg class="icon" aria-hidden="true"><use href="#ic-chevron"/></svg>
+            </button>
+            <button type="button" class="pdp-nav pdp-next" aria-label="Next photo of {p['name']}">
+              <svg class="icon" aria-hidden="true"><use href="#ic-chevron"/></svg>
+            </button>"""
     main = f"""          <div class="pdp-media {p['media']}">
             <span class="badge {badge_class}">{badge_text}</span>
-            <img class="pdp-photo" id="pdpMain" src="../images/{first}" alt="{p['name']} electric wheelchair">
+            <img class="pdp-photo" id="pdpMain" src="../images/{first}" alt="{p['name']} electric wheelchair">{nav}
           </div>"""
-    if len(images) < 2:
+    if not multi:
         return f'        <div class="pdp-gallery">\n{main}\n        </div>'
     thumbs = []
     for i, img in enumerate(images):
@@ -566,17 +619,35 @@ def render(p, products, reviews=None, gallery=None):
     )
     related_html = "\n".join(card_html(rp) for rp in related_products(products, p))
     reviews_block = reviews_section_html(p, revs)
-    jsonld = reviews_jsonld(p, revs)
+    canonical = f"{BASE_URL}/products/{p['slug']}.html"
+    og_image = f"{BASE_URL}/images/{p['image']}"
+    seo_title = f"{p['name']} Electric Wheelchair | Stride Pakistan"
+    meta_esc = escape(p["meta"], quote=True)
+    jsonld = product_jsonld(p, revs, canonical) + breadcrumb_jsonld(p, canonical)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{p['name']} Stride Electric Wheelchairs</title>
-  <meta name="description" content="{p['meta']}">
+  <title>{seo_title}</title>
+  <meta name="description" content="{meta_esc}">
+  <link rel="canonical" href="{canonical}">
+  <meta property="og:type" content="product">
+  <meta property="og:site_name" content="Stride">
+  <meta property="og:title" content="{escape(seo_title, quote=True)}">
+  <meta property="og:description" content="{meta_esc}">
+  <meta property="og:url" content="{canonical}">
+  <meta property="og:image" content="{og_image}">
+  <meta property="og:locale" content="en_PK">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{escape(seo_title, quote=True)}">
+  <meta name="twitter:description" content="{meta_esc}">
+  <meta name="twitter:image" content="{og_image}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap">
+  <link rel="icon" type="image/png" href="../images/favicon.png">
+  <link rel="apple-touch-icon" href="../images/favicon.png">
   <link rel="stylesheet" href="../style.css">
 {jsonld}</head>
 <body>
@@ -779,6 +850,25 @@ def main():
         compare_models_block(products),
     )
     print("updated app.js COMPARE_MODELS")
+
+    # 4) sitemap.xml (homepage + every product page)
+    write_sitemap(products)
+    print("wrote sitemap.xml")
+
+
+def write_sitemap(products):
+    today = date.today().isoformat()
+    urls = [(f"{BASE_URL}/", "1.0")]
+    urls += [(f"{BASE_URL}/products/{p['slug']}.html", "0.8") for p in products]
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for loc, prio in urls:
+        lines += ["  <url>", f"    <loc>{loc}</loc>",
+                  f"    <lastmod>{today}</lastmod>",
+                  f"    <priority>{prio}</priority>", "  </url>"]
+    lines.append("</urlset>")
+    with open(os.path.join(ROOT, "sitemap.xml"), "w") as f:
+        f.write("\n".join(lines) + "\n")
 
 
 if __name__ == "__main__":
