@@ -46,32 +46,32 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
 const COMPARE_MODELS = {
   'eco-e1': {
     name: 'Stride ECO E1', tag: 'Folding · Entry', price: 'PKR 125,000', img: 'images/eco-e1-1.jpg',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20ECO%20E1.%20Please%20share%20availability%20and%20final%20price.',
+    wa: 'https://wa.me/923199464347?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20ECO%20E1.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '100 kg', 'Kerb weight': '48 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
   'urban-u2': {
     name: 'Stride Value V2', tag: 'Folding · Value', price: 'PKR 149,000', img: 'images/urban-u2-1.jpg',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Value%20V2.%20Please%20share%20availability%20and%20final%20price.',
+    wa: 'https://wa.me/923199464347?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Value%20V2.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '48 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
   'cruise-c3': {
     name: 'Stride Cruise C3', tag: 'Rugged · All terrain', price: 'PKR 161,000', img: 'images/cruise-c3-1.jpg',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Cruise%20C3.%20Please%20share%20availability%20and%20final%20price.',
+    wa: 'https://wa.me/923199464347?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Cruise%20C3.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '20-25 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '50 kg', 'Battery': 'Sealed Lead Acid 24V 20Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'yes', 'Suspension': 'Rear', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
   'recline-r4': {
     name: 'Stride Recline R4', tag: 'Comfort · Recline', price: 'PKR 179,000', img: 'images/recline-r4-1.jpg',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Recline%20R4.%20Please%20share%20availability%20and%20final%20price.',
+    wa: 'https://wa.me/923199464347?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Recline%20R4.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '48 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': 'Extended Headrest · Adjustable', 'Warranty': '1 year' },
   },
   'pr-x': {
     name: 'Stride Power Recline PR-X', tag: 'Extra comfort · Full independence', price: 'PKR 222,000', img: 'images/pr-x-1.jpg',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Power%20Recline%20PR-X.%20Please%20share%20availability%20and%20final%20price.',
+    wa: 'https://wa.me/923199464347?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Power%20Recline%20PR-X.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '50 kg', 'Battery': 'Sealed Lead Acid 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': '—', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': 'Extended Headrest · Remote control Adjustable leg rests', 'Warranty': '1 year' },
   },
   'compact-air': {
     name: 'Stride Compact Air', tag: 'Ultra-light · Travel', price: 'PKR 420,000', img: 'images/compact-air-1.jpg',
-    wa: 'https://wa.me/923001234567?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Compact%20Air.%20Please%20share%20availability%20and%20final%20price.',
+    wa: 'https://wa.me/923199464347?text=Hi%20Stride%2C%20I%27m%20interested%20in%20the%20Stride%20Compact%20Air.%20Please%20share%20availability%20and%20final%20price.',
     specs: { 'Range': '15-20 km', 'Top speed': '6 km/h', 'Max load': '120 kg', 'Kerb weight': '26 kg', 'Battery': 'Li-ion 24V 12Ah', 'Motor': 'DC 250W', 'Charge time': '6–8 hrs', 'Foldable': 'Yes', 'Suspension': 'Full', 'Tyres': 'Front :Solid puncture-free rubber Rear : Pneumatic off road', 'Controls': 'Joystick', 'Recline': '—', 'Warranty': '1 year' },
   },
 };

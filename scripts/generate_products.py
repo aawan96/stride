@@ -62,9 +62,9 @@ MEDIA_BY_SLUG = {
 MEDIA_ROTATION = ["media-teal", "media-indigo", "media-amber"]
 
 # These globals are filled from the Site Settings sheet in load_data().
-WA = "923001234567"
-PHONE = "+92 300 1234567"
-HOURS = "Sat–Thu, 10am–7pm"
+WA = "923199464347"
+PHONE = "+92 319 9464347"
+HOURS = "Daily except Friday, 10am–7pm"
 GENERAL_WA = ""
 
 
