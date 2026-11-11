@@ -62,10 +62,29 @@ MEDIA_BY_SLUG = {
 MEDIA_ROTATION = ["media-teal", "media-indigo", "media-amber"]
 
 # These globals are filled from the Site Settings sheet in load_data().
+# --- Pre-launch mode (site opens February 2026) ---------------------------- #
+# While PRELAUNCH is on: prices show "Coming soon", and the only contact is an
+# "Email us" button (no phone / WhatsApp / address / hours). Flip to False and
+# regenerate to restore the full call/WhatsApp catalogue after launch.
+PRELAUNCH = True
+PRICE_PLACEHOLDER = "Coming soon"
+EMAIL = "info@stridepakistan.com"
+
 WA = "923199464347"
 PHONE = "+92 319 9464347"
 HOURS = "Daily except Friday, 10am–7pm"
 GENERAL_WA = ""
+
+
+def mailto(subject):
+    return f"mailto:{EMAIL}?subject={quote(subject)}"
+
+
+def email_btn(subject, cls, label="Email us"):
+    """A primary 'Email us' button (pre-launch replacement for call/WhatsApp)."""
+    return (f'<a class="{cls}" href="{mailto(subject)}">'
+            f'<svg class="icon" aria-hidden="true"><use href="#ic-mail"/></svg>'
+            f'<span>{label}</span></a>')
 
 
 # --------------------------------------------------------------------------- #
@@ -172,11 +191,11 @@ def load_data(path):
         products.append({
             "slug": slug,
             "name": name,
-            "price_value": price_num if price_num.isdigit() else "",
+            "price_value": "" if PRELAUNCH else (price_num if price_num.isdigit() else ""),
             "category": cell(row, "Category"),
             "tag": cell(row, "Tag / Label"),
             "badge": badge,
-            "price": price,
+            "price": PRICE_PLACEHOLDER if PRELAUNCH else price,
             "image": cell(row, "Image File") or "q5.png",
             "media": MEDIA_BY_SLUG.get(slug, MEDIA_ROTATION[len(products) % 3]),
             "card_desc": cell(row, "Card Description"),
@@ -322,12 +341,7 @@ def home_card_html(p):
               </ul>
               <div class="card-foot">
                 <div class="price">{p['price']}</div>
-                <a class="btn btn-primary btn-block" href="tel:+{WA}">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg><span>Call now</span>
-                </a>
-                <a class="btn btn-wa btn-block" href="{wa_link_short(p)}" target="_blank" rel="noopener">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg><span>Chat on WhatsApp</span>
-                </a>
+                {email_btn(f"Enquiry: {p['name']}", "btn btn-primary btn-block")}
               </div>
             </div>
           </article>"""
@@ -348,7 +362,6 @@ def compare_models_block(products):
             f"    name: {_js_str(p['name'])}, tag: {_js_str(p['tag'])}, "
             f"price: {_js_str(p['price'])}, img: {_js_str('images/' + p['image'])},"
         )
-        lines.append(f"    wa: {_js_str(wa_link_short(p))},")
         lines.append(f"    specs: {{ {specs} }},")
         lines.append("  },")
     lines.append("};")
@@ -400,6 +413,10 @@ SYMBOLS = """  <svg width="0" height="0" style="position:absolute" aria-hidden="
     <symbol id="ic-chevron" viewBox="0 0 24 24">
       <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
+    <symbol id="ic-mail" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M4 7.5l8 5.5 8-5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
   </svg>"""
 
 
@@ -429,12 +446,7 @@ def card_html(rp):
                 </ul>
                 <div class="card-foot">
                   <div class="price">{rp['price']}</div>
-                  <a class="btn btn-primary btn-block" href="tel:+{WA}">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg><span>Call now</span>
-                  </a>
-                  <a class="btn btn-wa btn-block" href="{wa_link(rp)}" target="_blank" rel="noopener">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg><span>Chat on WhatsApp</span>
-                  </a>
+                  {email_btn(f"Enquiry: {rp['name']}", "btn btn-primary btn-block")}
                 </div>
               </div>
             </article>"""
@@ -657,11 +669,7 @@ def render(p, products, reviews=None, gallery=None):
   <div class="topbar" id="top">
     <div class="container topbar-inner">
       <span class="topbar-msg"><svg class="icon" aria-hidden="true"><use href="#ic-truck"/></svg> Free delivery across Pakistan</span>
-      <span class="topbar-contact">
-        <a href="{GENERAL_WA}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg> {PHONE}</a>
-        <span class="topbar-sep" aria-hidden="true">·</span>
-        <span class="topbar-hours">{HOURS}</span>
-      </span>
+      <span class="topbar-contact"><svg class="icon" aria-hidden="true"><use href="#ic-mail"/></svg> Launching February 2026</span>
     </div>
   </div>
   <header class="site-header" id="headerMain">
@@ -675,10 +683,7 @@ def render(p, products, reviews=None, gallery=None):
         <a href="../index.html#compare">Compare</a>
         <a href="../index.html#contact">Contact</a>
       </nav>
-      <a class="btn btn-primary header-cta" href="tel:+{WA}">
-        <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>
-        <span>Call now</span>
-      </a>
+      {email_btn("Enquiry about Stride electric wheelchairs", "btn btn-primary header-cta")}
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -688,8 +693,7 @@ def render(p, products, reviews=None, gallery=None):
       <a href="../index.html#why">Why Stride</a>
       <a href="../index.html#compare">Compare</a>
       <a href="../index.html#contact">Contact</a>
-      <a class="btn btn-primary" href="tel:+{WA}">Call now for free consultation</a>
-      <a class="btn btn-wa" href="{wa_link(p)}" target="_blank" rel="noopener">Chat on WhatsApp</a>
+      {email_btn(f"Enquiry: {p['name']}", "btn btn-primary", "Email us")}
     </nav>
   </header>
 
@@ -705,12 +709,7 @@ def render(p, products, reviews=None, gallery=None):
             <h1>{p['name']}</h1>
             <p class="pdp-lead">{p['lead']}</p>
             <div class="pdp-price">{p['price']}</div>
-            <a class="btn btn-primary btn-lg" href="tel:+{WA}">
-              <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg><span>Call now for free consultation</span>
-            </a>
-            <a class="btn btn-wa btn-lg" href="{wa_link(p)}" target="_blank" rel="noopener">
-              <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg><span>Chat on WhatsApp</span>
-            </a>
+            {email_btn(f"Enquiry: {p['name']}", "btn btn-primary btn-lg")}
             <ul class="pdp-quick">
 {quick}
             </ul>
@@ -752,21 +751,14 @@ def render(p, products, reviews=None, gallery=None):
         <div class="contact-card">
           <div class="contact-copy">
             <h2>Questions about the {p['name']}?</h2>
-            <p>Call us for a free consultation on live stock, delivery time to your city and the final quote. Prefer to type? Message us on WhatsApp and we'll send real photos and answer anything.</p>
+            <p>Stride is launching in February 2026. Email us about the {p['name']} and we'll share details and let you know the moment it's available.</p>
             <div class="contact-meta">
-              <p><strong>WhatsApp / Phone:</strong> {PHONE}</p>
-              <p><strong>Hours:</strong> {HOURS} · Serving all of Pakistan</p>
+              <p><strong>Email:</strong> {EMAIL}</p>
+              <p><strong>Serving:</strong> All of Pakistan</p>
             </div>
           </div>
           <div class="contact-cta">
-            <a class="btn btn-primary btn-lg" href="tel:+{WA}">
-              <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>
-              <span>Call now for free consultation</span>
-            </a>
-            <a class="btn btn-wa btn-lg" href="{wa_link(p)}" target="_blank" rel="noopener">
-              <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg>
-              <span>Chat on WhatsApp</span>
-            </a>
+            {email_btn(f"Enquiry: {p['name']}", "btn btn-primary btn-lg")}
           </div>
         </div>
       </div>
@@ -787,15 +779,12 @@ def render(p, products, reviews=None, gallery=None):
     </div>
     <div class="container footer-bottom">
       <span>© <span id="year">2026</span> Stride. All rights reserved.</span>
-      <span>Prices in PKR and subject to change. Contact us for current pricing.</span>
+      <span>Launching February 2026 across Pakistan.</span>
     </div>
   </footer>
 
-  <a class="call-float" href="tel:+{WA}" aria-label="Call now for a free consultation">
-    <svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>
-  </a>
-  <a class="wa-float" href="{wa_link(p)}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
-    <svg class="icon" aria-hidden="true"><use href="#ic-wa"/></svg>
+  <a class="mail-float" href="{mailto('Enquiry about Stride electric wheelchairs')}" aria-label="Email Stride">
+    <svg class="icon" aria-hidden="true"><use href="#ic-mail"/></svg>
   </a>
 
   <script src="../app.js"></script>
